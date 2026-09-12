@@ -1,4 +1,4 @@
-# 🚦 Open City Mobility
+# 🚦 Real Time City Mobility Traffic Intelligence Platform
 
 > An open-source real-time city mobility and traffic intelligence platform built to ingest, process, validate, and analyze live public transportation data.
 
