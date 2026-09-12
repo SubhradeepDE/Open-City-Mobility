@@ -1,82 +1,136 @@
 # 🚦 Real Time City Mobility Traffic Intelligence Platform
 
-> An open-source real-time city mobility and traffic intelligence platform built to ingest, process, validate, and analyze live public transportation data.
+> An open-source real-time city mobility and traffic intelligence platform for ingesting, processing, validating, and analyzing live public transportation data.
 
-The goal of **Open City Mobility** is to build a production-style Data Engineering platform around real-time urban mobility data.
+**Open City Mobility** is a community-driven Data Engineering project that turns real-time urban mobility data into a reusable data platform.
 
-The platform currently focuses on **Delhi NCR public transit data** and is designed so contributors can later add new cities, data sources, transformations, dashboards, and analytics.
+The project currently focuses on **Delhi public transit data** and is designed to eventually support multiple cities, mobility data sources, streaming pipelines, analytics, dashboards, alerts, and machine learning.
 
 ---
 
 ## 🎯 Project Vision
 
-Cities generate huge amounts of transportation data every day.
+Cities continuously generate transportation data.
 
-Buses move across the city, routes become busy, vehicles slow down, services change, and weather can affect mobility.
+Buses move through different locations, routes become busy, services change, vehicles slow down, and mobility patterns change throughout the day.
 
-This project brings those different signals into a single open-source data platform.
+The goal of this project is to build an open-source platform that continuously collects this data and transforms it into useful mobility intelligence.
 
-### The long-term vision
+### Long-term vision
 
 ```text
-Public Data Sources
-        ↓
-    Ingestion
-        ↓
-   Event Streaming
-        ↓
-      Bronze
-        ↓
-      Silver
-        ↓
-       Gold
-        ↓
- Data Quality & Monitoring
-        ↓
- Analytics / Dashboard / Alerts
+                Public Data Sources
+                        │
+                        ▼
+                   Ingestion
+                        │
+                        ▼
+                  Event Streaming
+                        │
+                        ▼
+                     Bronze
+                        │
+                        ▼
+                     Silver
+                        │
+                        ▼
+                      Gold
+                        │
+                        ▼
+             Analytics / Dashboard
+                        │
+              ┌─────────┴─────────┐
+              ▼                   ▼
+            Alerts                ML
 ```
-
-The platform is designed to eventually support multiple cities and multiple mobility data sources.
 
 ---
 
-# 🚧 Current Project Status
+# 🚧 Project Status
 
 **Early Development — MVP**
 
-### Currently implemented
+## ✅ Completed
 
-* ✅ Delhi Open Transit Data real-time API ingestion
-* ✅ GTFS-Realtime vehicle position decoding
-* ✅ Raw Bronze data storage
-* ✅ Silver-layer vehicle position transformation
-* ✅ Historical vehicle position processing
-* ✅ Vehicle movement calculation using GPS coordinates
-* ✅ Haversine distance calculation
-* ✅ Speed calculation
-* ✅ GPS speed anomaly detection
-* ✅ Route-level performance analysis
-* ✅ Snapshot-level mobility metrics
-* ✅ Historical snapshot collection
+### Data Ingestion
 
-### Currently being developed
+* Delhi Open Transit Data realtime API integration
+* GTFS-Realtime vehicle position ingestion
+* Continuous API polling
+* Raw realtime feed storage
 
-* 🚧 Kafka event streaming
-* 🚧 Real-time streaming consumers
-* 🚧 Spark Structured Streaming
-* 🚧 Automated orchestration
-* 🚧 Static GTFS reference data integration
-* 🚧 Data quality framework
-* 🚧 Real-time dashboard
-* 🚧 Mobility anomaly detection
+### Data Processing
+
+* GTFS-Realtime protobuf decoding
+* Bronze layer
+* Silver layer
+* Historical Silver processing
+* GPS coordinate validation
+* Timestamp validation
+* Duplicate handling
+* Observation-gap filtering
+
+### Mobility Analytics
+
+* Vehicle movement calculation
+* Haversine distance calculation
+* Speed estimation
+* GPS speed anomaly detection
+* Route performance analysis
+* Hourly vehicle activity
+* Snapshot-level mobility metrics
+
+### Kafka Streaming
+
+* Apache Kafka 4.x local deployment
+* Kafka `vehicle_positions` topic
+* 3 Kafka partitions
+* Python Kafka producer
+* Python Kafka consumer
+* Kafka consumer groups
+* Kafka offsets
+* Consumer lag monitoring
+* Kafka → Bronze consumer
+* JSON event schema
+* Event validation before publishing
+
+### Local Development
+
+* Docker Compose
+* Kafka UI
 
 ---
 
-# 📊 Current Data Source
+## 🚧 Current Stage
 
-The current MVP uses **Delhi Open Transit Data (OTD)** for real-time public transportation information.
+The next major stage is:
 
-The real-time feed provides GTFS-Realtime vehicle information such as:
+```text
+Kafka
+  │
+  ▼
+Spark Structured Streaming
+  │
+  ▼
+Streaming Silver
+```
+
+Planned work includes:
+
+* Spark Structured Streaming
+* Streaming transformations
+* Event-time processing
+* Watermarking
+* Stateful processing
+* Streaming data quality
+
+---
+
+# 📡 Current Data Source
+
+The project currently uses **Delhi Open Transit Data (OTD)** for realtime public transportation data.
+
+Realtime vehicle events contain information such as:
 
 * Vehicle ID
 * Route ID
@@ -88,41 +142,92 @@ The real-time feed provides GTFS-Realtime vehicle information such as:
 
 Official source:
 
-[Delhi Open Transit Data](https://otd.delhi.gov.in/)
+https://otd.delhi.gov.in/
 
 ---
 
-# 🏗️ Current Architecture
+# 🏗️ Architecture
 
-The project currently follows a Medallion-style architecture.
+## Historical Pipeline
 
 ```text
-                 Delhi OTD
-                    │
-                    ▼
-             Python Ingestion
-                    │
-                    ▼
-               🥉 BRONZE
-            Raw GTFS-RT Files
-                    │
-                    ▼
-             Data Transformation
-                    │
-                    ▼
-               🥈 SILVER
-        Clean Vehicle Position Data
-                    │
-                    ▼
-              🥇 GOLD
-          Mobility Analytics
-                    │
-             ┌──────┴──────┐
-             ▼             ▼
-       Route Metrics    Snapshot Metrics
+Delhi OTD API
+      │
+      ▼
+Python Ingestion
+      │
+      ▼
+🥉 Bronze
+      │
+      ▼
+Decode + Clean
+      │
+      ▼
+🥈 Silver
+      │
+      ▼
+Mobility Analytics
+      │
+      ▼
+🥇 Gold
 ```
 
-The architecture will evolve as streaming components are introduced.
+## Realtime Pipeline
+
+```text
+Delhi OTD API
+      │
+      ▼
+Python Producer
+      │
+      ▼
+Schema Validation
+      │
+      ▼
+Apache Kafka
+      │
+      ▼
+vehicle_positions
+      │
+      ▼
+Kafka Consumer
+      │
+      ▼
+🥉 Streaming Bronze
+```
+
+## Target Streaming Architecture
+
+```text
+                 Delhi OTD API
+                       │
+                       ▼
+                Python Producer
+                       │
+                       ▼
+              ┌────────────────┐
+              │ Apache Kafka   │
+              │                │
+              │vehicle_positions
+              │ P0  P1  P2     │
+              └───────┬────────┘
+                      │
+                      ▼
+            Spark Structured Streaming
+                      │
+                      ▼
+                  🥉 Bronze
+                      │
+                      ▼
+                  🥈 Silver
+                      │
+                      ▼
+                   🥇 Gold
+                      │
+          ┌───────────┼───────────┐
+          ▼           ▼           ▼
+       Dashboard    Alerts        ML
+```
 
 ---
 
@@ -133,24 +238,35 @@ open-city-mobility/
 │
 ├── data/
 │   ├── bronze/
+│   │   └── stream/
 │   ├── silver/
 │   ├── gold/
 │   └── reference/
 │
+├── schemas/
+│   └── vehicle_position.json
+│
 ├── src/
+│   │
 │   ├── ingestion/
 │   │   └── delhi_transit.py
 │   │
-│   └── transformation/
-│       ├── vehicle_positions.py
-│       ├── build_historical_silver.py
-│       ├── hourly_vehicle_activity.py
-│       ├── vehicle_movement.py
-│       ├── route_performance.py
-│       └── snapshot_metrics.py
+│   ├── transformation/
+│   │   ├── vehicle_positions.py
+│   │   ├── build_historical_silver.py
+│   │   ├── hourly_vehicle_activity.py
+│   │   ├── vehicle_movement.py
+│   │   ├── route_performance.py
+│   │   └── snapshot_metrics.py
+│   │
+│   └── streaming/
+│       ├── vehicle_producer.py
+│       ├── vehicle_consumer.py
+│       └── bronze_consumer.py
 │
 ├── docs/
 │
+├── docker-compose.yml
 ├── README.md
 ├── LICENSE
 └── .gitignore
@@ -160,50 +276,44 @@ open-city-mobility/
 
 # 🥉 Bronze Layer
 
-The Bronze layer stores the raw GTFS-Realtime responses exactly as received.
+Bronze stores data as close as possible to the original source.
+
+Historical GTFS-Realtime feeds are stored as raw binary files.
+
+Realtime Kafka events are persisted through the Kafka → Bronze consumer.
 
 Example:
 
 ```text
 data/bronze/
-├── vehicle_positions_20260912_100044.bin
-├── vehicle_positions_20260912_100052.bin
-├── vehicle_positions_20260912_105335.bin
-└── ...
+├── vehicle_positions_YYYYMMDD_HHMMSS.bin
+└── stream/
+    └── YYYY/MM/DD/
+        └── vehicle_positions.jsonl
 ```
 
-### Why keep raw data?
-
-Because raw data gives us the ability to:
-
-* Reprocess historical data
-* Fix transformation logic
-* Debug ingestion problems
-* Rebuild downstream tables
-* Investigate data-quality issues
-
-The Bronze layer should remain as close as possible to the original source.
+Bronze exists so that downstream data can be rebuilt without requesting the source again.
 
 ---
 
 # 🥈 Silver Layer
 
-The Silver layer contains decoded and cleaned vehicle-position data.
+Silver contains decoded, structured, and cleaned vehicle-position data.
 
 Current schema:
 
-| Column                | Description                           |
-| --------------------- | ------------------------------------- |
-| `vehicle_id`          | Unique vehicle identifier             |
-| `route_id`            | Transit route identifier              |
-| `trip_id`             | Trip identifier                       |
-| `latitude`            | Vehicle latitude                      |
-| `longitude`           | Vehicle longitude                     |
-| `vehicle_timestamp`   | Time reported by the vehicle feed     |
-| `ingestion_timestamp` | Time the pipeline ingested the record |
-| `vehicle_status`      | GTFS-Realtime vehicle status          |
+| Column                | Description                            |
+| --------------------- | -------------------------------------- |
+| `vehicle_id`          | Unique vehicle identifier              |
+| `route_id`            | Transit route identifier               |
+| `trip_id`             | Trip identifier                        |
+| `latitude`            | Vehicle latitude                       |
+| `longitude`           | Vehicle longitude                      |
+| `vehicle_timestamp`   | Timestamp reported by the vehicle feed |
+| `ingestion_timestamp` | Timestamp associated with ingestion    |
+| `vehicle_status`      | GTFS-Realtime vehicle status           |
 
-Historical data is stored in:
+Historical Silver dataset:
 
 ```text
 data/silver/vehicle_positions_history.parquet
@@ -213,7 +323,7 @@ data/silver/vehicle_positions_history.parquet
 
 # 🥇 Gold Layer
 
-The current Gold layer contains analytical datasets.
+The current Gold layer contains exploratory mobility analytics.
 
 ### Route Vehicle Summary
 
@@ -246,10 +356,10 @@ vehicle_movement.parquet
 
 Provides:
 
-* Distance travelled between observations
-* Observation time difference
+* Distance between observations
+* Time difference between observations
 * Estimated speed
-* GPS speed anomaly indicators
+* Speed anomaly flag
 
 ### Route Performance
 
@@ -259,7 +369,7 @@ route_performance.parquet
 
 Provides:
 
-* Vehicle count
+* Active vehicles
 * Movement observations
 * Total observed distance
 * Average speed
@@ -273,7 +383,7 @@ Provides:
 snapshot_metrics.parquet
 ```
 
-Provides one row per realtime feed snapshot:
+Provides:
 
 * Snapshot timestamp
 * Ingestion timestamp
@@ -281,130 +391,304 @@ Provides one row per realtime feed snapshot:
 * Active routes
 * Total records
 
----
-
-# 🔄 Current Data Flow
-
-The current MVP works like this:
-
-```text
-1. Call Delhi OTD API
-          ↓
-2. Receive GTFS-Realtime binary feed
-          ↓
-3. Save raw response
-          ↓
-4. Decode protobuf data
-          ↓
-5. Clean and validate records
-          ↓
-6. Store Silver Parquet data
-          ↓
-7. Build analytical Gold tables
-```
+> Gold analytics are currently exploratory because the project is still accumulating historical observations.
 
 ---
 
-# 📈 Example Current Dataset
+# 📨 Kafka
 
-During development, the realtime feed produced thousands of vehicle records per snapshot.
+Apache Kafka is the realtime event transport layer.
 
-Example development snapshot:
+## Topic
 
 ```text
-Active vehicles: 5,723
-Active routes:   1,355
-Total records:   5,723
+vehicle_positions
 ```
 
-Historical development data has already been collected across multiple snapshots and is being used to build time-based mobility analytics.
+Current development configuration:
 
-> These numbers change continuously because the source is realtime.
+```text
+Partitions: 3
+Replication factor: 1
+```
+
+Each vehicle position is published as an individual event.
+
+Example:
+
+```json
+{
+  "event_version": 1,
+  "event_type": "vehicle_position",
+  "vehicle_id": "DL1PD6470",
+  "route_id": "2226",
+  "trip_id": "TRIP123",
+  "latitude": 28.60894,
+  "longitude": 77.10159,
+  "vehicle_timestamp": "2026-09-12T15:09:41Z",
+  "ingestion_timestamp": "2026-09-12T15:09:42Z"
+}
+```
+
+The producer uses `vehicle_id` as the Kafka message key.
 
 ---
 
-# 🧠 Data Engineering Concepts Demonstrated
+# 📨 Kafka Producer
 
-This project is intentionally designed to demonstrate real Data Engineering concepts rather than only dashboard creation.
-
-### Data ingestion
+Location:
 
 ```text
-REST / Realtime API
+src/streaming/vehicle_producer.py
 ```
 
-### Data formats
+Responsibilities:
 
 ```text
+1. Fetch Delhi realtime feed
+2. Decode GTFS-Realtime
+3. Create vehicle events
+4. Validate events
+5. Publish events to Kafka
+```
+
+Pipeline:
+
+```text
+Delhi OTD
+    │
+    ▼
 GTFS-Realtime
-Protocol Buffers
-Parquet
-```
-
-### Data processing
-
-```text
+    │
+    ▼
 Python
-Pandas
-```
-
-### Data architecture
-
-```text
-Bronze
-Silver
-Gold
-```
-
-### Data quality
-
-```text
-Duplicate detection
-Null handling
-Coordinate validation
-Timestamp validation
-GPS anomaly detection
-Observation-gap filtering
-```
-
-### Analytics
-
-```text
-Time-series analysis
-Vehicle movement
-Speed estimation
-Route-level metrics
-Snapshot-level metrics
+    │
+    ▼
+JSON Event
+    │
+    ▼
+Schema Validation
+    │
+    ▼
+Kafka
 ```
 
 ---
 
-# 🛠️ Technology Roadmap
+# 📥 Kafka Consumer
 
-The project will gradually introduce the following technologies.
+Location:
 
-| Technology                   | Planned Usage               | Status |
-| ---------------------------- | --------------------------- | ------ |
-| Python                       | Ingestion & transformations | ✅      |
-| Pandas                       | Data processing             | ✅      |
-| Parquet                      | Data storage                | ✅      |
-| PostgreSQL                   | Analytics serving layer     | 🔜     |
-| Kafka                        | Event streaming             | 🔜     |
-| Spark                        | Stream processing           | 🔜     |
-| Airflow                      | Orchestration               | 🔜     |
-| Docker                       | Local development           | 🔜     |
-| dbt                          | Transformation / modeling   | 🔜     |
-| Great Expectations / similar | Data quality                | 🔜     |
-| Grafana / Superset           | Dashboarding                | 🔜     |
-| Terraform                    | Infrastructure              | 🔜     |
-| Cloud deployment             | Production deployment       | 🔜     |
-| ML                           | Mobility prediction         | 🔜     |
+```text
+src/streaming/vehicle_consumer.py
+```
+
+Used for development and debugging.
+
+It demonstrates:
+
+* Kafka consumers
+* Consumer groups
+* Partitions
+* Offsets
+* Message consumption
+
+---
+
+# 🥉 Kafka → Bronze Consumer
+
+Location:
+
+```text
+src/streaming/bronze_consumer.py
+```
+
+Responsibilities:
+
+```text
+Kafka
+  ↓
+Read event
+  ↓
+Attach Kafka metadata
+  ↓
+Persist raw event
+  ↓
+Streaming Bronze
+```
+
+Kafka metadata includes:
+
+* Partition
+* Offset
+* Bronze ingestion timestamp
+
+---
+
+# 🧾 Event Schema
+
+Vehicle-position events follow:
+
+```text
+schemas/vehicle_position.json
+```
+
+Current required fields include:
+
+```text
+event_version
+event_type
+vehicle_id
+route_id
+trip_id
+latitude
+longitude
+vehicle_timestamp
+ingestion_timestamp
+```
+
+The schema is versioned so the event contract can evolve safely.
+
+---
+
+# 🖥️ Kafka UI
+
+Kafka UI is included for local development and debugging.
+
+Start the platform:
+
+```bash
+docker compose up -d
+```
+
+Open:
+
+```text
+http://localhost:8080
+```
+
+Kafka UI can be used to inspect:
+
+* Topics
+* Messages
+* Partitions
+* Consumer groups
+* Offsets
+* Consumer lag
+
+Primary topic:
+
+```text
+vehicle_positions
+```
+
+---
+
+# 🐳 Local Development
+
+Start infrastructure:
+
+```bash
+docker compose up -d
+```
+
+Check services:
+
+```bash
+docker compose ps
+```
+
+Stop infrastructure:
+
+```bash
+docker compose down
+```
+
+---
+
+# 🔐 Configuration
+
+Store secrets in environment variables.
+
+Example:
+
+```text
+DELHI_TRANSIT_API_KEY=your_api_key
+```
+
+Never commit:
+
+```text
+.env
+API keys
+credentials
+tokens
+```
+
+The API key must never appear in source code, Git history, logs, screenshots, or documentation.
+
+---
+
+# 🧠 Data Engineering Concepts
+
+This project intentionally demonstrates practical Data Engineering concepts.
+
+### Ingestion
+
+* REST API ingestion
+* GTFS-Realtime
+* Continuous polling
+
+### Streaming
+
+* Apache Kafka
+* Producers
+* Consumers
+* Topics
+* Partitions
+* Offsets
+* Consumer groups
+* Consumer lag
+
+### Data Architecture
+
+* Bronze
+* Silver
+* Gold
+* Historical processing
+* Streaming processing
+
+### Data Quality
+
+* Null handling
+* Duplicate detection
+* Coordinate validation
+* Timestamp validation
+* GPS anomaly detection
+* Observation-gap filtering
+* Schema validation
+
+### Processing
+
+* Python
+* Pandas
+* Parquet
+* Protocol Buffers
+
+### Mobility Analytics
+
+* Vehicle activity
+* Vehicle movement
+* Distance estimation
+* Speed estimation
+* Route performance
+* Time-series analysis
 
 ---
 
 # 🌍 Future Data Sources
 
-The long-term platform will support multiple mobility-related datasets.
+The platform is designed to eventually support:
 
 ```text
 🚌 Public Transit
@@ -422,9 +706,7 @@ Each source should be implemented as an independent connector.
 
 # 🏙️ Multi-City Vision
 
-The project is being designed so that contributors can add new cities without rewriting the entire pipeline.
-
-Long-term structure:
+The long-term goal is to support multiple cities using a common platform.
 
 ```text
 cities/
@@ -435,91 +717,53 @@ cities/
 └── new_york/
 ```
 
-The goal is:
+Target architecture:
 
 ```text
-            Open City Mobility
-                    │
-       ┌────────────┼────────────┐
-       ▼            ▼            ▼
-     Delhi        Mumbai      Bangalore
-       │            │            │
-       └────────────┼────────────┘
-                    ▼
-              Common Pipeline
+                 Open City Mobility
+                         │
+          ┌──────────────┼──────────────┐
+          ▼              ▼              ▼
+        Delhi          Mumbai       Bangalore
+          │              │              │
+          └──────────────┼──────────────┘
+                         ▼
+                   Common Pipeline
 ```
+
+A contributor should eventually be able to add a city without rewriting the complete pipeline.
 
 ---
 
 # 🤝 Contributing
 
-This project is intended to be community-driven.
+Open City Mobility is designed to be community-driven.
 
-Contributors can work on different parts of the platform without needing to understand the entire codebase.
+## Beginner Contributions
 
-### Good first contributions
+* Documentation
+* Tests
+* Bug fixes
+* Configuration
+* Examples
 
-* Improve documentation
-* Add tests
-* Add city configuration
-* Add a new API connector
-* Improve error handling
-* Improve data validation
+## Intermediate Contributions
 
-### Data Engineering contributions
+* API connectors
+* Streaming transformations
+* Silver models
+* Data-quality rules
+* Dashboard components
 
-* Build Silver transformations
-* Build Gold models
-* Add Kafka producers/consumers
-* Add Spark streaming jobs
-* Improve partitioning
-* Improve processing efficiency
-* Add data-quality checks
+## Advanced Contributions
 
-### Advanced contributions
-
-* Real-time anomaly detection
+* Spark Structured Streaming
+* Kafka optimization
 * Pipeline observability
-* ML-based mobility prediction
-* Kubernetes deployment
+* Anomaly detection
+* Machine learning
 * Cloud infrastructure
-* Data lineage
-* Performance optimization
-
----
-
-# 🧪 Development Principles
-
-The project follows a few important principles.
-
-### Raw data should remain reproducible
-
-Bronze data should be retained so downstream datasets can be rebuilt.
-
-### Transformations should be modular
-
-Each transformation should have a clear input and output.
-
-### Data quality should happen before analytics
-
-Bad data should not silently become business insights.
-
-### Small changes should be easy to contribute
-
-Contributors should be able to work on isolated components.
-
-### Production thinking
-
-The project should gradually move toward:
-
-```text
-Scalable
-Testable
-Observable
-Recoverable
-Documented
-Reproducible
-```
+* Kubernetes
 
 ---
 
@@ -527,66 +771,80 @@ Reproducible
 
 ## Phase 1 — MVP
 
-* [x] Delhi realtime ingestion
+* [x] Delhi realtime API ingestion
 * [x] Bronze storage
 * [x] Silver transformation
-* [x] Historical data processing
-* [x] Initial Gold analytics
+* [x] Historical processing
+* [x] Initial mobility analytics
 
-## Phase 2 — Streaming
+## Phase 2 — Kafka
 
-* [ ] Kafka producer
-* [ ] Kafka topic design
-* [ ] Kafka consumer
-* [ ] Event schema
-* [ ] Message validation
+* [x] Apache Kafka local deployment
+* [x] `vehicle_positions` topic
+* [x] Kafka producer
+* [x] Kafka consumer
+* [x] Consumer groups
+* [x] Partition and offset tracking
+* [x] Kafka → Bronze consumer
+* [x] Event schema
+* [x] Schema validation
+* [x] Kafka UI
 
-## Phase 3 — Stream Processing
+## Phase 3 — Spark Streaming
 
+* [ ] Spark installation
 * [ ] Spark Structured Streaming
+* [ ] Kafka → Spark
 * [ ] Streaming Bronze
 * [ ] Streaming Silver
-* [ ] Real-time aggregations
+* [ ] Event-time processing
+* [ ] Watermarking
+* [ ] Stateful processing
 
-## Phase 4 — Orchestration
-
-* [ ] Airflow
-* [ ] Scheduled ingestion
-* [ ] Pipeline dependencies
-* [ ] Retry handling
-* [ ] Failure notifications
-
-## Phase 5 — Analytics Platform
+## Phase 4 — Data Platform
 
 * [ ] PostgreSQL serving layer
+* [ ] Static GTFS reference data
 * [ ] Route dimension
 * [ ] Stop dimension
-* [ ] Better route performance models
+* [ ] Improved mobility models
+
+## Phase 5 — Orchestration & Quality
+
+* [ ] Airflow
+* [ ] Automated data-quality framework
+* [ ] CI/CD
+* [ ] Pipeline monitoring
+
+## Phase 6 — Analytics
+
+* [ ] Live vehicle map
 * [ ] Real-time dashboard
+* [ ] Mobility anomaly detection
+* [ ] Real-time alerts
+* [ ] Historical comparisons
 
-## Phase 6 — Open Source Expansion
+## Phase 7 — Community Expansion
 
+* [ ] Multi-city framework
 * [ ] Contributor guide
 * [ ] Issue templates
-* [ ] Pull request templates
-* [ ] Automated tests
-* [ ] CI/CD
-* [ ] Multi-city support
+* [ ] Pull-request templates
+* [ ] Additional data connectors
 
-## Phase 7 — Advanced Platform
+## Phase 8 — Advanced Platform
 
 * [ ] Data observability
-* [ ] Anomaly detection
 * [ ] Mobility prediction
 * [ ] Cloud deployment
-* [ ] Infrastructure as Code
+* [ ] Terraform
 * [ ] Kubernetes
 
 ---
 
 # 📊 Dashboard
 
-The planned dashboard will provide:
+Planned dashboard capabilities:
 
 * Live vehicle map
 * Active vehicle count
@@ -597,65 +855,43 @@ The planned dashboard will provide:
 * Anomaly alerts
 * Historical comparisons
 
-### Dashboard Preview
+### Dashboard Screenshot
 
-> Add the dashboard screenshot here once the dashboard is available.
+Once the dashboard is available:
 
-```text
+```markdown
 ![Dashboard](docs/images/dashboard.png)
 ```
 
 ---
 
-# 🔐 Security
-
-Never commit API keys or credentials.
-
-Use environment variables:
-
-```text
-DELHI_TRANSIT_API_KEY=your_api_key
-```
-
-The `.env` file must remain outside version control.
-
----
-
-# 📄 License
-
-This project is open source.
-
-See [`LICENSE`](LICENSE) for license information.
-
----
-
-# ⭐ Contributing & Supporting
+# ⭐ Support the Project
 
 If you find this project useful:
 
 * ⭐ Star the repository
-* 🐛 Report bugs
+* 🐛 Report issues
 * 💡 Suggest improvements
 * 🔧 Submit pull requests
 * 📖 Improve documentation
-
-Every contribution helps make the platform better.
+* 🌍 Add new cities or data sources
 
 ---
 
-## 🚦 Project Goal
+# 🚦 Final Goal
 
-The ultimate goal is to transform this:
+Transform:
 
 ```text
 Raw public transportation feeds
 ```
 
-into this:
+into:
 
 ```text
-A reusable open-source real-time
-city mobility intelligence platform.
+A reusable open-source
+real-time city mobility
+intelligence platform.
 ```
 
-Built by the community. For the community.
+**Built by the community. For the community.**
