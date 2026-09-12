@@ -1,4 +1,4 @@
-# 🚦 Real Time City Mobility Traffic Intelligence Platform
+# 🚦 Open City Mobility
 
 > An open-source real-time city mobility and traffic intelligence platform for ingesting, processing, validating, and analyzing live public transportation data.
 
@@ -82,7 +82,7 @@ The goal of this project is to build an open-source platform that continuously c
 
 ### Kafka Streaming
 
-* Apache Kafka 4.x local deployment
+* Apache Kafka 4.0.2 local deployment
 * Kafka `vehicle_positions` topic
 * 3 Kafka partitions
 * Python Kafka producer
@@ -94,35 +94,61 @@ The goal of this project is to build an open-source platform that continuously c
 * JSON event schema
 * Event validation before publishing
 
+### PySpark Streaming
+
+* PySpark 4.2.0 installation
+* Spark Structured Streaming
+* Kafka → PySpark
+* Kafka JSON parsing
+* Streaming Silver Parquet pipeline
+* Event-time processing
+* Watermarking
+* Streaming data-quality validation
+* Invalid-event quarantine
+
 ### Local Development
 
 * Docker Compose
+* Apache Kafka
 * Kafka UI
 
 ---
 
 ## 🚧 Current Stage
 
-The next major stage is:
+The project is currently completing the final part of the initial Spark Streaming phase:
 
 ```text
 Kafka
   │
   ▼
-Spark Structured Streaming
+PySpark Structured Streaming
   │
   ▼
-Streaming Silver
+Event-Time Processing
+  │
+  ▼
+Watermarking
+  │
+  ▼
+Stateful Processing
 ```
 
-Planned work includes:
+**Stateful processing is currently under development and has not yet been marked complete until the stateful output is successfully validated.**
 
-* Spark Structured Streaming
-* Streaming transformations
-* Event-time processing
-* Watermarking
-* Stateful processing
-* Streaming data quality
+The next stages after that are:
+
+```text
+Streaming Platform
+        ↓
+Data Platform
+        ↓
+PostgreSQL
+        ↓
+Reference / Dimension Data
+        ↓
+Dashboard
+```
 
 ---
 
@@ -130,7 +156,7 @@ Planned work includes:
 
 The project currently uses **Delhi Open Transit Data (OTD)** for realtime public transportation data.
 
-Realtime vehicle events contain information such as:
+Realtime vehicle events include information such as:
 
 * Vehicle ID
 * Route ID
@@ -196,7 +222,32 @@ Kafka Consumer
 🥉 Streaming Bronze
 ```
 
-## Target Streaming Architecture
+## PySpark Streaming Pipeline
+
+```text
+                Apache Kafka
+                     │
+                     ▼
+             vehicle_positions
+                     │
+                     ▼
+        PySpark Structured Streaming
+                     │
+                     ▼
+                Parse JSON
+                     │
+                     ▼
+               Data Quality
+                /        \
+               /          \
+              ▼            ▼
+           Valid          Invalid
+              │              │
+              ▼              ▼
+       Streaming Silver   Quarantine
+```
+
+## Target Architecture
 
 ```text
                  Delhi OTD API
@@ -213,7 +264,7 @@ Kafka Consumer
               └───────┬────────┘
                       │
                       ▼
-            Spark Structured Streaming
+            PySpark Structured Streaming
                       │
                       ▼
                   🥉 Bronze
@@ -240,7 +291,11 @@ open-city-mobility/
 │   ├── bronze/
 │   │   └── stream/
 │   ├── silver/
+│   │   ├── streaming/
+│   │   └── stateful_vehicle_positions/
 │   ├── gold/
+│   ├── quarantine/
+│   │   └── vehicle_positions/
 │   └── reference/
 │
 ├── schemas/
@@ -262,7 +317,13 @@ open-city-mobility/
 │   └── streaming/
 │       ├── vehicle_producer.py
 │       ├── vehicle_consumer.py
-│       └── bronze_consumer.py
+│       ├── bronze_consumer.py
+│       ├── pyspark_kafka.py
+│       ├── pyspark_vehicle_parser.py
+│       ├── pyspark_vehicle_silver.py
+│       ├── pyspark_vehicle_quality.py
+│       ├── pyspark_event_time.py
+│       └── stateful_vehicle_tracking.py
 │
 ├── docs/
 │
@@ -276,11 +337,11 @@ open-city-mobility/
 
 # 🥉 Bronze Layer
 
-Bronze stores data as close as possible to the original source.
+The Bronze layer stores data as close as possible to the original source.
 
 Historical GTFS-Realtime feeds are stored as raw binary files.
 
-Realtime Kafka events are persisted through the Kafka → Bronze consumer.
+Realtime Kafka events are persisted through the Kafka → Bronze consumer as JSONL data.
 
 Example:
 
@@ -292,18 +353,20 @@ data/bronze/
         └── vehicle_positions.jsonl
 ```
 
-Bronze exists so that downstream data can be rebuilt without requesting the source again.
+Bronze exists so downstream data can be rebuilt without requesting the source again.
 
 ---
 
 # 🥈 Silver Layer
 
-Silver contains decoded, structured, and cleaned vehicle-position data.
+The Silver layer contains decoded, structured, validated, and cleaned vehicle-position data.
 
-Current schema:
+Current schema includes:
 
 | Column                | Description                            |
 | --------------------- | -------------------------------------- |
+| `event_version`       | Event schema version                   |
+| `event_type`          | Type of realtime event                 |
 | `vehicle_id`          | Unique vehicle identifier              |
 | `route_id`            | Transit route identifier               |
 | `trip_id`             | Trip identifier                        |
@@ -311,12 +374,20 @@ Current schema:
 | `longitude`           | Vehicle longitude                      |
 | `vehicle_timestamp`   | Timestamp reported by the vehicle feed |
 | `ingestion_timestamp` | Timestamp associated with ingestion    |
-| `vehicle_status`      | GTFS-Realtime vehicle status           |
+| `kafka_partition`     | Kafka source partition                 |
+| `kafka_offset`        | Kafka source offset                    |
+| `kafka_timestamp`     | Kafka record timestamp                 |
 
-Historical Silver dataset:
+Historical Silver:
 
 ```text
 data/silver/vehicle_positions_history.parquet
+```
+
+Streaming Silver:
+
+```text
+data/silver/streaming/
 ```
 
 ---
@@ -405,7 +476,7 @@ Apache Kafka is the realtime event transport layer.
 vehicle_positions
 ```
 
-Current development configuration:
+Current local development configuration:
 
 ```text
 Partitions: 3
@@ -525,15 +596,25 @@ Kafka metadata includes:
 
 ---
 
-# 🧾 Event Schema
+# 🔥 PySpark Streaming
 
-Vehicle-position events follow:
+The project uses **PySpark 4.2.0** for Spark Structured Streaming.
+
+## Kafka → PySpark
 
 ```text
-schemas/vehicle_position.json
+Kafka
+  ↓
+spark.readStream
+  ↓
+vehicle_positions
+  ↓
+Raw Kafka DataFrame
 ```
 
-Current required fields include:
+## JSON Parsing
+
+Kafka values are parsed using a defined Spark schema:
 
 ```text
 event_version
@@ -547,15 +628,138 @@ vehicle_timestamp
 ingestion_timestamp
 ```
 
-The schema is versioned so the event contract can evolve safely.
+## Streaming Silver
+
+Valid events are transformed into structured Silver data and written to:
+
+```text
+data/silver/streaming/
+```
+
+## Event Time
+
+`vehicle_timestamp` is treated as the event-time field.
+
+This is separate from:
+
+```text
+Kafka timestamp
+```
+
+and:
+
+```text
+ingestion timestamp
+```
+
+This distinction is important for late and out-of-order events.
+
+## Watermarking
+
+The current event-time demonstration uses a:
+
+```text
+2 minute watermark
+```
+
+to handle late-arriving events.
+
+## Stateful Processing
+
+Stateful vehicle tracking is currently under development.
+
+The intended state key is:
+
+```text
+vehicle_id
+```
+
+The intended state contains:
+
+```text
+latest route
+latest trip
+latest latitude
+latest longitude
+latest vehicle timestamp
+```
+
+The stateful pipeline is **not yet marked complete** until its output is validated successfully.
+
+---
+
+# 🧾 Event Schema
+
+Vehicle-position events follow:
+
+```text
+schemas/vehicle_position.json
+```
+
+Current event contract includes:
+
+```text
+event_version
+event_type
+vehicle_id
+route_id
+trip_id
+latitude
+longitude
+vehicle_timestamp
+ingestion_timestamp
+```
+
+The event schema is versioned to allow controlled schema evolution.
+
+---
+
+# 🚨 Data Quality & Quarantine
+
+Streaming validation checks include:
+
+```text
+Event version
+Event type
+Vehicle ID
+Latitude
+Longitude
+Vehicle timestamp
+Ingestion timestamp
+```
+
+Invalid records are routed separately rather than silently discarded.
+
+```text
+                    Kafka
+                      │
+                      ▼
+                   PySpark
+                      │
+                 Validation
+                 /         \
+                /           \
+             VALID         INVALID
+                │              │
+                ▼              ▼
+             Silver       Quarantine
+```
+
+Quarantine location:
+
+```text
+data/quarantine/vehicle_positions/
+```
+
+This allows failed events to be inspected and debugged later.
 
 ---
 
 # 🖥️ Kafka UI
 
-Kafka UI is included for local development and debugging.
+Kafka UI is included for local Kafka development and debugging.
 
-Start the platform:
+Start the environment:
 
 ```bash
 docker compose up -d
@@ -606,6 +810,52 @@ docker compose down
 
 ---
 
+# ⚙️ Running the Streaming Components
+
+## Start Kafka
+
+```bash
+docker compose up -d
+```
+
+## Start the producer
+
+```bash
+python src/streaming/vehicle_producer.py
+```
+
+## Run the basic Kafka consumer
+
+```bash
+python src/streaming/vehicle_consumer.py
+```
+
+## Run the PySpark Kafka parser
+
+```bash
+spark-submit \
+  --packages org.apache.spark:spark-sql-kafka-0-10_2.13:4.2.0 \
+  src/streaming/pyspark_vehicle_parser.py
+```
+
+## Run the Streaming Silver pipeline
+
+```bash
+spark-submit \
+  --packages org.apache.spark:spark-sql-kafka-0-10_2.13:4.2.0 \
+  src/streaming/pyspark_vehicle_silver.py
+```
+
+## Run the event-time pipeline
+
+```bash
+spark-submit \
+  --packages org.apache.spark:spark-sql-kafka-0-10_2.13:4.2.0 \
+  src/streaming/pyspark_event_time.py
+```
+
+---
+
 # 🔐 Configuration
 
 Store secrets in environment variables.
@@ -625,7 +875,13 @@ credentials
 tokens
 ```
 
-The API key must never appear in source code, Git history, logs, screenshots, or documentation.
+The API key must never appear in:
+
+* Source code
+* Git history
+* Logs
+* Documentation
+* Screenshots
 
 ---
 
@@ -650,6 +906,16 @@ This project intentionally demonstrates practical Data Engineering concepts.
 * Consumer groups
 * Consumer lag
 
+### Spark
+
+* PySpark
+* Structured Streaming
+* Kafka integration
+* Streaming DataFrames
+* Event-time processing
+* Watermarking
+* Stateful processing
+
 ### Data Architecture
 
 * Bronze
@@ -667,13 +933,16 @@ This project intentionally demonstrates practical Data Engineering concepts.
 * GPS anomaly detection
 * Observation-gap filtering
 * Schema validation
+* Invalid-event quarantine
 
 ### Processing
 
 * Python
 * Pandas
+* PySpark
 * Parquet
 * Protocol Buffers
+* JSON
 
 ### Mobility Analytics
 
@@ -781,10 +1050,12 @@ Open City Mobility is designed to be community-driven.
 
 * [x] Apache Kafka local deployment
 * [x] `vehicle_positions` topic
+* [x] 3 Kafka partitions
 * [x] Kafka producer
 * [x] Kafka consumer
 * [x] Consumer groups
 * [x] Partition and offset tracking
+* [x] Consumer lag monitoring
 * [x] Kafka → Bronze consumer
 * [x] Event schema
 * [x] Schema validation
@@ -792,14 +1063,14 @@ Open City Mobility is designed to be community-driven.
 
 ## Phase 3 — Spark Streaming
 
-- [x] Spark installation
-- [x] Spark Structured Streaming
-- [x] Kafka → Spark
-- [x] Streaming Bronze
-- [x] Streaming Silver
-- [x] Event-time processing
-- [x] Watermarking
-- [x] Stateful processing
+* [x] PySpark installation
+* [x] Spark Structured Streaming
+* [x] Kafka → Spark
+* [x] Streaming Bronze
+* [x] Streaming Silver
+* [x] Event-time processing
+* [x] Watermarking
+* [ ] Stateful processing
 
 ## Phase 4 — Data Platform
 
@@ -807,7 +1078,8 @@ Open City Mobility is designed to be community-driven.
 * [ ] Static GTFS reference data
 * [ ] Route dimension
 * [ ] Stop dimension
-* [ ] Improved mobility models
+* [ ] Improved mobility data model
+* [ ] Analytical serving layer
 
 ## Phase 5 — Orchestration & Quality
 
@@ -815,6 +1087,8 @@ Open City Mobility is designed to be community-driven.
 * [ ] Automated data-quality framework
 * [ ] CI/CD
 * [ ] Pipeline monitoring
+* [ ] Data lineage
+* [ ] Data observability
 
 ## Phase 6 — Analytics
 
@@ -834,8 +1108,8 @@ Open City Mobility is designed to be community-driven.
 
 ## Phase 8 — Advanced Platform
 
-* [ ] Data observability
 * [ ] Mobility prediction
+* [ ] Machine learning
 * [ ] Cloud deployment
 * [ ] Terraform
 * [ ] Kubernetes
@@ -857,7 +1131,7 @@ Planned dashboard capabilities:
 
 ### Dashboard Screenshot
 
-Once the dashboard is available:
+Once the dashboard is available, add the screenshot here:
 
 ```markdown
 ![Dashboard](docs/images/dashboard.png)
@@ -865,9 +1139,15 @@ Once the dashboard is available:
 
 ---
 
+# 📄 License
+
+See [`LICENSE`](LICENSE) for license information.
+
+---
+
 # ⭐ Support the Project
 
-If you find this project useful:
+If you find the project useful:
 
 * ⭐ Star the repository
 * 🐛 Report issues
