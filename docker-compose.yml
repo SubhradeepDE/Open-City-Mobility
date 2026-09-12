@@ -48,7 +48,27 @@ services:
     environment:
       KAFKA_CLUSTERS_0_NAME: city-mobility
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+  postgres:
+    image: postgres:16
+    container_name: city-mobility-postgres
+    environment:
+      POSTGRES_DB: mobility
+      POSTGRES_USER: mobility_user
+      POSTGRES_PASSWORD: mobility_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  
+  adminer:
+    image: adminer:latest
+    container_name: city-mobility-adminer
+    depends_on:
+      - postgres
+    ports:
+      - "8082:8080"
 
 
 volumes:
   kafka_data:
+  postgres_data:
