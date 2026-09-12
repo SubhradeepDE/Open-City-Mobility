@@ -792,14 +792,14 @@ Open City Mobility is designed to be community-driven.
 
 ## Phase 3 — Spark Streaming
 
-* [ ] Spark installation
-* [ ] Spark Structured Streaming
-* [ ] Kafka → Spark
-* [ ] Streaming Bronze
-* [ ] Streaming Silver
-* [ ] Event-time processing
-* [ ] Watermarking
-* [ ] Stateful processing
+- [x] Spark installation
+- [x] Spark Structured Streaming
+- [x] Kafka → Spark
+- [x] Streaming Bronze
+- [x] Streaming Silver
+- [x] Event-time processing
+- [x] Watermarking
+- [x] Stateful processing
 
 ## Phase 4 — Data Platform
 
