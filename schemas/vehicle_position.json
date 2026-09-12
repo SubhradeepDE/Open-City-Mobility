@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "VehiclePositionEvent",
+  "description": "Schema for a real-time Delhi public transit vehicle position event.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_version",
+    "event_type",
+    "vehicle_id",
+    "route_id",
+    "trip_id",
+    "latitude",
+    "longitude",
+    "vehicle_timestamp",
+    "ingestion_timestamp"
+  ],
+  "properties": {
+    "event_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "event_type": {
+      "type": "string",
+      "const": "vehicle_position"
+    },
+    "vehicle_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "route_id": {
+      "type": ["string", "null"]
+    },
+    "trip_id": {
+      "type": ["string", "null"]
+    },
+    "latitude": {
+      "type": ["number", "null"],
+      "minimum": -90,
+      "maximum": 90
+    },
+    "longitude": {
+      "type": ["number", "null"],
+      "minimum": -180,
+      "maximum": 180
+    },
+    "vehicle_timestamp": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    },
+    "ingestion_timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

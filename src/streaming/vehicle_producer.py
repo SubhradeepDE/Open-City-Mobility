@@ -2,6 +2,7 @@ import json
 import os
 import time
 from datetime import datetime, timezone
+from jsonschema import ValidationError, validate
 
 import requests
 from dotenv import load_dotenv
@@ -29,6 +30,10 @@ KAFKA_TOPIC = "vehicle_positions"
 
 POLL_INTERVAL_SECONDS = 60
 
+SCHEMA_FILE = "schemas/vehicle_position.json"
+
+with open(SCHEMA_FILE, "r", encoding="utf-8") as file:
+    VEHICLE_POSITION_SCHEMA = json.load(file)
 
 # --------------------------------------------------
 # Kafka Producer
@@ -71,6 +76,22 @@ def fetch_vehicle_feed():
 
     return response.content
 
+def validate_vehicle_event(event: dict) -> bool:
+    """Validate an event against the vehicle position schema."""
+
+    try:
+        validate(
+            instance=event,
+            schema=VEHICLE_POSITION_SCHEMA,
+        )
+        return True
+
+    except ValidationError as error:
+        print(
+            f"Invalid vehicle event: "
+            f"{error.message}"
+        )
+        return False
 
 # --------------------------------------------------
 # Decode GTFS-Realtime
@@ -147,6 +168,8 @@ def decode_vehicle_positions(
             continue
 
         event = {
+            "event_version": 1,
+            "event_type": "vehicle_position",
             "vehicle_id": vehicle_id,
             "route_id": route_id,
             "trip_id": trip_id,
@@ -174,11 +197,12 @@ def publish_vehicle_events(
 
     for vehicle in vehicles:
 
+        if not validate_vehicle_event(vehicle):
+            continue
+
         future = producer.send(
             KAFKA_TOPIC,
-            key=vehicle["vehicle_id"].encode(
-                "utf-8"
-            ),
+            key=vehicle["vehicle_id"].encode("utf-8"),
             value=vehicle,
         )
 
