@@ -97,6 +97,17 @@ def create_route_performance(
         )
     )
 
+    # ----------------------------------------------
+    # Minimum sample-size requirement
+    # ----------------------------------------------
+
+    MIN_MOVEMENT_RECORDS = 20
+
+    performance = performance[
+    performance["movement_records"]
+    >= MIN_MOVEMENT_RECORDS
+    ].copy()
+
     return performance
 
 
