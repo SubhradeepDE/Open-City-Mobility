@@ -23,41 +23,70 @@ The goal of this project is to build an open-source platform that continuously c
 ### Long-term vision
 
 ```text
-                Public Data Sources
-                        │
-                        ▼
-                   Ingestion
-                        │
-                        ▼
-                  Event Streaming
-                        │
-                        ▼
-                     Bronze
-                        │
-                        ▼
-                     Silver
-                        │
-                        ▼
-                      Gold
-                        │
-                        ▼
-                Serving / API Layer
-                        │
-                        ▼
-                Analytics / Dashboard
-                        │
-              ┌─────────┴─────────┐
-              ▼                   ▼
-            Alerts                ML
+
+            Public Data Sources
+
+                    │
+
+                    ▼
+
+               Ingestion
+
+                    │
+
+                    ▼
+
+              Event Streaming
+
+                    │
+
+                    ▼
+
+                 Bronze
+
+                    │
+
+                    ▼
+
+                 Silver
+
+                    │
+
+                    ▼
+
+                  Gold
+
+                    │
+
+                    ▼
+
+            Serving / API Layer
+
+                    │
+
+                    ▼
+
+            Analytics / Dashboard
+
+                    │
+
+          ┌─────────┴─────────┐
+
+          ▼                   ▼
+
+        Alerts                ML
+
 ```
 
 ---
 
 # 🚧 Project Status
 
-**Early Development — MVP**
+Current Stage — Analytics + Community Expansion
 
-## ✅ Completed
+The project has moved beyond the initial MVP and now contains a working realtime data platform and application layer.
+
+✅ Completed
 
 ### Data Ingestion
 
@@ -86,20 +115,23 @@ The goal of this project is to build an open-source platform that continuously c
 * Route performance analysis
 * Hourly vehicle activity
 * Snapshot-level mobility metrics
+* Historical hourly comparisons
+* Mobility anomaly detection
+* Real-time mobility alerts
 
 ### Kafka Streaming
 
 * Apache Kafka 4.0.2 local deployment
 * Kafka `vehicle_positions` topic
 * 3 Kafka partitions
-* Python Kafka producer
-* Python Kafka consumer
-* Kafka consumer groups
-* Kafka offsets
+* Python producer
+* Python consumer
+* Consumer groups
+* Offset tracking
 * Consumer lag monitoring
 * Kafka → Bronze consumer
 * JSON event schema
-* Event validation before publishing
+* Event validation
 
 ### PySpark Streaming
 
@@ -116,64 +148,94 @@ The goal of this project is to build an open-source platform that continuously c
 ### PostgreSQL Data Platform
 
 * PostgreSQL 16 local deployment
-* `mobility` application schema
-* Historical `vehicle_positions` table
-* `latest_vehicle_positions` live-state table
-* `routes` route registry
-* `stops` reference table structure
-* `route_activity_summary` serving table
-* PySpark → PostgreSQL integration
-* Latest vehicle position upsert
+* Historical `vehicle_positions`
+* `latest_vehicle_positions`
+* `routes`
+* `stops`
+* `route_activity_summary`
+* PySpark → PostgreSQL
+* Latest vehicle-position upsert
 * Automated route-summary refresh
 
-### Local Development
+### Serving & Dashboard
 
-* Docker Compose
-* Apache Kafka
-* Kafka UI
-* PostgreSQL
-* Adminer
+* FastAPI serving layer
+* Health endpoint
+* Live vehicle endpoint
+* Metrics endpoint
+* Route activity endpoint
+* Anomaly endpoint
+* Alert endpoint
+* React dashboard
+* Live vehicle map
+* Route activity table
+* Live auto-refresh
+
+### Orchestration & Quality
+
+* Airflow 3 local deployment
+* Scheduled mobility pipeline
+* Reusable data-quality checks
+* Automated pipeline monitoring
+* Data observability metrics
+* Data lineage documentation
+* GitHub Actions CI
+
+### Community Expansion
+
+* Multi-city configuration
+* UP test-city configuration for Lucknow, Meerut, Noida, and Kanpur
+* Common city loader
 
 ---
 
 ## 🚧 Current Stage
 
-The project is currently moving from the **Data Platform** into the **Application / Serving Layer**.
+The project has progressed from the Data Platform into the Application / Analytics Layer and is now beginning the Community Expansion and Advanced Platform phases.
 
 Current architecture:
 
 ```text
-Kafka
-  ↓
-PySpark
-  ↓
-PostgreSQL
-  ↓
-Serving Tables
-  ↓
+Delhi OTD / City Connectors
+↓
+Python Ingestion
+↓
+Apache Kafka
+↓
+PySpark Structured Streaming
+↓
+Bronze → Silver → Gold
+↓
+PostgreSQL Serving Layer
+↓
 FastAPI
-  ↓
-Dashboard
+↓
+React Dashboard
+↓
+Live Map + Route Analytics + Anomalies + Alerts
+↓
+Community / Multi-City Framework
 ```
 
-The next application layer will expose PostgreSQL data through REST APIs instead of allowing the frontend to access the database directly.
+The platform currently provides a working Delhi realtime mobility pipeline, Airflow orchestration, automated quality checks, monitoring and observability, historical mobility analytics, a live vehicle map, anomaly detection, alerts, and a dashboard backed by FastAPI.
 
-Planned API endpoints include:
-
-```text
-GET /health
-GET /vehicles/latest
-GET /routes/activity
-GET /metrics/overview
-```
+The next stage focuses on making the platform easier for contributors to extend across cities and data sources, followed by AI-assisted mobility intelligence, prediction, and cloud-native deployment.
 
 ---
 
-# 📡 Current Data Source
+# 📡 Current Data Sources
 
-The project currently uses **Delhi Open Transit Data (OTD)** for realtime public transportation data.
+Production / Development Source
 
-Realtime vehicle events include information such as:
+The primary realtime source is Delhi Open Transit Data (OTD).
+
+Official source:
+
+```text
+https://otd.delhi.gov.in/
+```
+
+Realtime vehicle events include:
 
 * Vehicle ID
 * Route ID
@@ -183,9 +245,18 @@ Realtime vehicle events include information such as:
 * Vehicle timestamp
 * Vehicle status
 
-Official source:
+Multi-City Testing
 
-https://otd.delhi.gov.in/
+The multi-city framework currently includes test configurations for:
+
+```text
+Lucknow
+Meerut
+Noida
+Kanpur
+```
+
+These UP cities are currently configuration-level test entries and are not represented as live production connectors unless a verified realtime source is available.
 
 ---
 
@@ -194,80 +265,147 @@ https://otd.delhi.gov.in/
 ## Historical Pipeline
 
 ```text
+
 Delhi OTD API
-      │
-      ▼
+
+  │
+
+  ▼
+
 Python Ingestion
-      │
-      ▼
+
+  │
+
+  ▼
+
 🥉 Bronze
-      │
-      ▼
+
+  │
+
+  ▼
+
 Decode + Clean
-      │
-      ▼
+
+  │
+
+  ▼
+
 🥈 Silver
-      │
-      ▼
+
+  │
+
+  ▼
+
 Mobility Analytics
-      │
-      ▼
+
+  │
+
+  ▼
+
 🥇 Gold
+
 ```
 
 ## Realtime Streaming Pipeline
 
 ```text
+
 Delhi OTD API
-      │
-      ▼
+
+  │
+
+  ▼
+
 Python Producer
-      │
-      ▼
+
+  │
+
+  ▼
+
 Schema Validation
-      │
-      ▼
+
+  │
+
+  ▼
+
 Apache Kafka
-      │
-      ▼
+
+  │
+
+  ▼
+
 vehicle_positions
-      │
-      ▼
+
+  │
+
+  ▼
+
 PySpark Structured Streaming
-      │
-      ▼
+
+  │
+
+  ▼
+
 Data Quality
-      │
-      ├──────────────┐
-      ▼              ▼
-   Valid           Invalid
-      │              │
-      ▼              ▼
+
+  │
+
+  ├──────────────┐
+
+  ▼              ▼
+
+Valid           Invalid
+
+  │              │
+
+  ▼              ▼
+
 Streaming Silver  Quarantine
+
 ```
 
 ## Serving Pipeline
 
 ```text
+
 Streaming Silver
-      │
-      ▼
+
+  │
+
+  ▼
+
 PostgreSQL
-      │
-      ├──────────────────────────┐
-      ▼                          ▼
+
+  │
+
+  ├──────────────────────────┐
+
+  ▼                          ▼
+
 vehicle_positions      latest_vehicle_positions
+
 Historical Events          Current State
-      │                          │
-      └────────────┬─────────────┘
-                   ▼
-          route_activity_summary
-                   │
-                   ▼
-                FastAPI
-                   │
-                   ▼
-               Dashboard
+
+  │                          │
+
+  └────────────┬─────────────┘
+
+               ▼
+
+      route\_activity\_summary
+
+               │
+
+               ▼
+
+            FastAPI
+
+               │
+
+               ▼
+
+           Dashboard
+
 ```
 
 ---
@@ -276,63 +414,193 @@ Historical Events          Current State
 
 ```text
 open-city-mobility/
+
 │
+
+├── airflow/
+
+│   ├── dags/
+
+│   │   └── mobility_pipeline.py
+
+│   ├── logs/
+
+│   └── plugins/
+
+│
+
+├── config/
+
+│   └── cities.json
+
+│
+
 ├── data/
+
 │   ├── bronze/
+
 │   │   └── stream/
+
 │   ├── silver/
+
 │   │   ├── streaming/
+
 │   │   └── stateful_vehicle_positions/
+
 │   ├── gold/
+
+│   ├── ml/
+
 │   ├── quarantine/
+
 │   │   └── vehicle_positions/
+
 │   └── reference/
+
 │
+
 ├── schemas/
+
 │   └── vehicle_position.json
+
 │
+
 ├── scripts/
+
 │   └── refresh_route_summary.sh
+
 │
+
 ├── src/
+
+│   │
+
+│   ├── ai/
+
+│   │   └── __init__.py
+
 │   │
 │   ├── api/
+
 │   │   ├── __init__.py
+
 │   │   └── main.py
+
 │   │
 │   ├── ingestion/
+
 │   │   └── delhi_transit.py
+
+│   │
+│   ├── ml/
+
+│   │   └── create_features.py
+
+│   │
+│   ├── quality/
+
+│   │   ├── __init__.py
+
+│   │   ├── checks.py
+
+│   │   └── runner.py
+
 │   │
 │   ├── transformation/
+
 │   │   ├── vehicle_positions.py
+
 │   │   ├── build_historical_silver.py
+
 │   │   ├── hourly_vehicle_activity.py
+
 │   │   ├── vehicle_movement.py
+
 │   │   ├── route_performance.py
+
 │   │   ├── snapshot_metrics.py
+
 │   │   ├── load_routes_postgres.py
+
 │   │   └── route_activity_summary.py
+
 │   │
 │   └── streaming/
+
 │       ├── vehicle_producer.py
+
 │       ├── vehicle_consumer.py
+
 │       ├── bronze_consumer.py
+
 │       ├── pyspark_kafka.py
+
 │       ├── pyspark_vehicle_parser.py
+
 │       ├── pyspark_vehicle_silver.py
+
 │       ├── pyspark_vehicle_quality.py
+
 │       ├── pyspark_event_time.py
+
 │       ├── stateful_vehicle_tracking.py
+
 │       ├── pyspark_postgres_sink.py
+
 │       └── pyspark_latest_vehicle_sink.py
+
 │
+
+├── tests/
+
+│   └── test_quality.py
+
+│
+
 ├── docs/
+
+│   ├── data_lineage.md
+
+│   └── images/
+
+│       └── dashboard.png
+
 │
+
+├── deployment/
+
+│   ├── docker/
+
+│   ├── scripts/
+
+│   └── config/
+
+│       └── .env.example
+
+│
+
+├── .github/
+
+│   └── workflows/
+
+│       └── ci.yml
+
+│
+
 ├── docker-compose.yml
+
+├── Dockerfile
+
 ├── postgresql-*.jar
+
+├── requirements.txt
+
 ├── README.md
+
 ├── LICENSE
+
 └── .gitignore
+
 ```
 
 ---
@@ -348,11 +616,17 @@ Realtime Kafka events are persisted through the Kafka → Bronze consumer as JSO
 Example:
 
 ```text
+
 data/bronze/
+
 ├── vehicle_positions_YYYYMMDD_HHMMSS.bin
+
 └── stream/
-    └── YYYY/MM/DD/
-        └── vehicle_positions.jsonl
+
+└── YYYY/MM/DD/
+
+    └── vehicle\_positions.jsonl
+
 ```
 
 Bronze exists so downstream datasets can be rebuilt without requesting the source again.
@@ -366,30 +640,47 @@ The Silver layer contains decoded, structured, validated, and cleaned vehicle-po
 Current schema includes:
 
 | Column                | Description                  |
+
 | --------------------- | ---------------------------- |
+
 | `event_version`       | Event schema version         |
+
 | `event_type`          | Type of realtime event       |
+
 | `vehicle_id`          | Unique vehicle identifier    |
+
 | `route_id`            | Transit route identifier     |
+
 | `trip_id`             | Trip identifier              |
+
 | `latitude`            | Vehicle latitude             |
+
 | `longitude`           | Vehicle longitude            |
+
 | `vehicle_timestamp`   | Source event timestamp       |
+
 | `ingestion_timestamp` | Pipeline ingestion timestamp |
+
 | `kafka_partition`     | Kafka source partition       |
+
 | `kafka_offset`        | Kafka source offset          |
+
 | `kafka_timestamp`     | Kafka record timestamp       |
 
 Historical Silver:
 
 ```text
+
 data/silver/vehicle_positions_history.parquet
+
 ```
 
 Streaming Silver:
 
 ```text
+
 data/silver/streaming/
+
 ```
 
 ---
@@ -401,67 +692,93 @@ The current Gold layer contains exploratory mobility analytics.
 ### Route Vehicle Summary
 
 ```text
+
 route_vehicle_summary.parquet
+
 ```
 
 Provides:
 
 * Active vehicles by route
+
 * Unique trips by route
 
 ### Hourly Vehicle Activity
 
 ```text
+
 hourly_vehicle_activity.parquet
+
 ```
 
 Provides:
 
 * Active vehicles by hour
+
 * Active routes by hour
+
 * Total observations
 
 ### Vehicle Movement
 
 ```text
+
 vehicle_movement.parquet
+
 ```
 
 Provides:
 
 * Distance between observations
+
 * Time difference between observations
+
 * Estimated speed
+
 * Speed anomaly flag
 
 ### Route Performance
 
 ```text
+
 route_performance.parquet
+
 ```
 
 Provides:
 
 * Active vehicles
+
 * Movement observations
+
 * Total observed distance
+
 * Average speed
+
 * Median speed
+
 * Minimum speed
+
 * Maximum speed
 
 ### Snapshot Metrics
 
 ```text
+
 snapshot_metrics.parquet
+
 ```
 
 Provides:
 
 * Snapshot timestamp
+
 * Ingestion timestamp
+
 * Active vehicles
+
 * Active routes
+
 * Total records
 
 > Gold analytics are currently exploratory because the project is still accumulating historical observations.
@@ -475,14 +792,19 @@ Apache Kafka is the realtime event transport layer.
 ## Topic
 
 ```text
+
 vehicle_positions
+
 ```
 
 Current local development configuration:
 
 ```text
+
 Partitions: 3
+
 Replication factor: 1
+
 ```
 
 Each vehicle position is published as an individual event.
@@ -490,17 +812,29 @@ Each vehicle position is published as an individual event.
 Example:
 
 ```json
+
 {
-  "event_version": 1,
-  "event_type": "vehicle_position",
-  "vehicle_id": "DL1PD6470",
-  "route_id": "2226",
-  "trip_id": "TRIP123",
-  "latitude": 28.60894,
-  "longitude": 77.10159,
-  "vehicle_timestamp": "2026-09-12T15:09:41Z",
-  "ingestion_timestamp": "2026-09-12T15:09:42Z"
+
+"event_version": 1,
+
+"event_type": "vehicle_position",
+
+"vehicle_id": "DL1PD6470",
+
+"route_id": "2226",
+
+"trip_id": "TRIP123",
+
+"latitude": 28.60894,
+
+"longitude": 77.10159,
+
+"vehicle_timestamp": "2026-09-12T15:09:41Z",
+
+"ingestion_timestamp": "2026-09-12T15:09:42Z"
+
 }
+
 ```
 
 The producer uses `vehicle_id` as the Kafka message key.
@@ -512,17 +846,25 @@ The producer uses `vehicle_id` as the Kafka message key.
 Location:
 
 ```text
+
 src/streaming/vehicle_producer.py
+
 ```
 
 Responsibilities:
 
 ```text
+
 1. Fetch Delhi realtime feed
+
 2. Decode GTFS-Realtime
+
 3. Create vehicle events
+
 4. Validate events
+
 5. Publish events to Kafka
+
 ```
 
 ---
@@ -532,7 +874,9 @@ Responsibilities:
 Location:
 
 ```text
+
 src/streaming/vehicle_consumer.py
+
 ```
 
 Used for development and debugging.
@@ -540,9 +884,13 @@ Used for development and debugging.
 It demonstrates:
 
 * Kafka consumers
+
 * Consumer groups
+
 * Partitions
+
 * Offsets
+
 * Message consumption
 
 ---
@@ -552,21 +900,33 @@ It demonstrates:
 Location:
 
 ```text
+
 src/streaming/bronze_consumer.py
+
 ```
 
 Responsibilities:
 
 ```text
+
 Kafka
-  ↓
+
+↓
+
 Read event
-  ↓
+
+↓
+
 Attach Kafka metadata
-  ↓
+
+↓
+
 Persist raw event
-  ↓
+
+↓
+
 Streaming Bronze
+
 ```
 
 ---
@@ -578,13 +938,21 @@ The project uses **PySpark 4.2.0** for Spark Structured Streaming.
 ## Kafka → PySpark
 
 ```text
+
 Kafka
-  ↓
+
+↓
+
 spark.readStream
-  ↓
+
+↓
+
 vehicle_positions
-  ↓
+
+↓
+
 Raw Kafka DataFrame
+
 ```
 
 ## JSON Parsing
@@ -596,7 +964,9 @@ Kafka values are parsed using a defined Spark schema.
 Valid events are transformed into structured Silver data and written to:
 
 ```text
+
 data/silver/streaming/
+
 ```
 
 ## Event Time
@@ -616,17 +986,25 @@ Stateful vehicle tracking is implemented as a development capability and is bein
 The intended state key is:
 
 ```text
+
 vehicle_id
+
 ```
 
 with state representing:
 
 ```text
+
 latest route
+
 latest trip
+
 latest latitude
+
 latest longitude
+
 latest event timestamp
+
 ```
 
 ---
@@ -636,34 +1014,55 @@ latest event timestamp
 Streaming validation checks include:
 
 * Event version
+
 * Event type
+
 * Vehicle ID
+
 * Latitude
+
 * Longitude
+
 * Vehicle timestamp
+
 * Ingestion timestamp
 
 Invalid records are routed separately rather than silently discarded.
 
 ```text
-                    Kafka
-                      │
-                      ▼
-                   PySpark
-                      │
-                 Validation
-                 /         \
-                /           \
-             VALID         INVALID
-                │              │
-                ▼              ▼
-             Silver       Quarantine
+
+                Kafka
+
+                  │
+
+                  ▼
+
+               PySpark
+
+                  │
+
+             Validation
+
+             /         \\
+
+            /           \\
+
+         VALID         INVALID
+
+            │              │
+
+            ▼              ▼
+
+         Silver       Quarantine
+
 ```
 
 Quarantine location:
 
 ```text
+
 data/quarantine/vehicle_positions/
+
 ```
 
 ---
@@ -675,18 +1074,27 @@ PostgreSQL acts as the **serving and application database** for the platform.
 Application schema:
 
 ```text
+
 mobility
+
 ```
 
 Current tables:
 
 ```text
+
 mobility
+
 ├── vehicle_positions
+
 ├── latest_vehicle_positions
+
 ├── routes
+
 ├── stops
+
 └── route_activity_summary
+
 ```
 
 ---
@@ -694,7 +1102,9 @@ mobility
 ## Historical Vehicle Positions
 
 ```text
+
 mobility.vehicle_positions
+
 ```
 
 Append-oriented table containing historical vehicle-position events.
@@ -702,8 +1112,11 @@ Append-oriented table containing historical vehicle-position events.
 Used for:
 
 * Historical analysis
+
 * Time-series analysis
+
 * Auditing
+
 * Reprocessing
 
 ---
@@ -711,7 +1124,9 @@ Used for:
 ## Latest Vehicle Positions
 
 ```text
+
 mobility.latest_vehicle_positions
+
 ```
 
 One current-state row per vehicle.
@@ -719,8 +1134,11 @@ One current-state row per vehicle.
 Used for:
 
 * Live map
+
 * Current vehicle location
+
 * Active vehicle queries
+
 * Real-time dashboard
 
 The table is maintained using an upsert pattern.
@@ -730,15 +1148,21 @@ The table is maintained using an upsert pattern.
 ## Route Registry
 
 ```text
+
 mobility.routes
+
 ```
 
 Currently contains realtime-derived route information such as:
 
 * Route ID
+
 * First observed timestamp
+
 * Last observed timestamp
+
 * Vehicle count
+
 * Trip count
 
 The table is intended to be enriched with authoritative GTFS metadata when static reference data becomes available.
@@ -748,7 +1172,9 @@ The table is intended to be enriched with authoritative GTFS metadata when stati
 ## Stop Reference Table
 
 ```text
+
 mobility.stops
+
 ```
 
 The table structure is ready for static GTFS stop metadata.
@@ -762,14 +1188,19 @@ No stop metadata is fabricated from realtime vehicle positions.
 ## Route Activity Summary
 
 ```text
+
 mobility.route_activity_summary
+
 ```
 
 Provides dashboard-oriented route metrics:
 
 * Active vehicle count
+
 * Active trip count
+
 * Last observed timestamp
+
 * Updated timestamp
 
 The summary is refreshed automatically through the project's scheduled refresh script.
@@ -778,58 +1209,119 @@ The summary is refreshed automatically through the project's scheduled refresh s
 
 # 🔗 Serving Layer
 
-The intended application architecture is:
+The implemented application architecture is:
 
 ```text
 PostgreSQL
-    ↓
+↓
 FastAPI
-    ↓
-Frontend / Dashboard
+↓
+React Dashboard
 ```
 
-The database should not be exposed directly to the frontend.
+The frontend consumes REST APIs instead of accessing PostgreSQL directly.
 
-Planned endpoints:
+Current endpoints include:
 
 ```text
 GET /health
+GET /vehicles/live
 GET /vehicles/latest
 GET /routes/activity
 GET /metrics/overview
+GET /analytics/anomalies
+GET /analytics/alerts
+```
+
+The live vehicle endpoint is backed by:
+
+```text
+mobility.latest_vehicle_positions
 ```
 
 ---
 
-# 🖥️ Local Development UIs
+# 📈 Monitoring & Observability
+
+Airflow and PostgreSQL now provide a lightweight operational monitoring layer.
+
+Pipeline Runs
+
+```text
+monitoring.pipeline_runs
+```
+
+Tracks:
+
+* Pipeline status
+* Start time
+* End time
+* Duration
+* Records processed
+* Data-quality status
+
+Data Quality Metrics
+
+```text
+monitoring.data_quality_metrics
+```
+
+Tracks:
+
+* Row count
+* Null count
+* Duplicate count
+
+Mobility Alerts
+
+```text
+monitoring.mobility_alerts
+```
+
+Stores anomaly-generated mobility alerts for dashboard consumption.
+
+---
+
+🖥️ Local Development UIs
 
 ## Kafka UI
 
 Start infrastructure:
 
 ```bash
+
 docker compose up -d
+
 ```
 
 Open:
 
 ```text
+
 http://localhost:8080
+
 ```
 
 Kafka UI can be used to inspect:
 
 * Topics
+
 * Messages
+
 * Partitions
+
 * Consumer groups
+
 * Offsets
+
 * Consumer lag
 
 Primary topic:
 
 ```text
+
 vehicle_positions
+
 ```
 
 ---
@@ -839,17 +1331,25 @@ vehicle_positions
 Open:
 
 ```text
+
 http://localhost:8082
+
 ```
 
 Connection:
 
 | Field    | Value               |
+
 | -------- | ------------------- |
+
 | System   | PostgreSQL          |
+
 | Server   | `postgres`          |
+
 | Username | `mobility_user`     |
+
 | Password | `mobility_password` |
+
 | Database | `mobility`          |
 
 Adminer provides a convenient interface for inspecting PostgreSQL tables and records.
@@ -861,19 +1361,25 @@ Adminer provides a convenient interface for inspecting PostgreSQL tables and rec
 Start infrastructure:
 
 ```bash
+
 docker compose up -d
+
 ```
 
 Check services:
 
 ```bash
+
 docker compose ps
+
 ```
 
 Stop infrastructure:
 
 ```bash
+
 docker compose down
+
 ```
 
 ---
@@ -883,60 +1389,87 @@ docker compose down
 ## Start Kafka and PostgreSQL
 
 ```bash
+
 docker compose up -d
+
 ```
 
 ## Start Kafka producer
 
 ```bash
+
 python src/streaming/vehicle_producer.py
+
 ```
 
 ## Start Kafka consumer
 
 ```bash
+
 python src/streaming/vehicle_consumer.py
+
 ```
 
 ## Run PySpark Kafka parser
 
 ```bash
+
 spark-submit \
-  --packages org.apache.spark:spark-sql-kafka-0-10_2.13:4.2.0 \
-  src/streaming/pyspark_vehicle_parser.py
+
+--packages org.apache.spark:spark-sql-kafka-0-10_2.13:4.2.0 \
+
+src/streaming/pyspark_vehicle_parser.py
+
 ```
 
 ## Run Streaming Silver
 
 ```bash
+
 spark-submit \
-  --packages org.apache.spark:spark-sql-kafka-0-10_2.13:4.2.0 \
-  src/streaming/pyspark_vehicle_silver.py
+
+--packages org.apache.spark:spark-sql-kafka-0-10_2.13:4.2.0 \
+
+src/streaming/pyspark_vehicle_silver.py
+
 ```
 
 ## Run Event-Time Processing
 
 ```bash
+
 spark-submit \
-  --packages org.apache.spark:spark-sql-kafka-0-10_2.13:4.2.0 \
-  src/streaming/pyspark_event_time.py
+
+--packages org.apache.spark:spark-sql-kafka-0-10_2.13:4.2.0 \
+
+src/streaming/pyspark_event_time.py
+
 ```
 
 ## Run PySpark → PostgreSQL
 
 ```bash
+
 spark-submit \
-  --jars postgresql-42.7.7.jar \
-  --packages org.apache.spark:spark-sql-kafka-0-10_2.13:4.2.0 \
-  src/streaming/pyspark_postgres_sink.py
+
+--jars postgresql-42.7.7.jar \
+
+--packages org.apache.spark:spark-sql-kafka-0-10_2.13:4.2.0 \
+
+src/streaming/pyspark_postgres_sink.py
+
 ```
 
 ## Run latest vehicle-state sink
 
 ```bash
+
 spark-submit \
-  --packages org.apache.spark:spark-sql-kafka-0-10_2.13:4.2.0 \
-  src/streaming/pyspark_latest_vehicle_sink.py
+
+--packages org.apache.spark:spark-sql-kafka-0-10_2.13:4.2.0 \
+
+src/streaming/pyspark_latest_vehicle_sink.py
+
 ```
 
 ---
@@ -948,24 +1481,35 @@ Store secrets in environment variables.
 Example:
 
 ```text
+
 DELHI_TRANSIT_API_KEY=your_api_key
+
 ```
 
 Never commit:
 
 ```text
+
 .env
+
 API keys
+
 credentials
+
 tokens
+
 ```
 
 The API key must never appear in:
 
 * Source code
+
 * Git history
+
 * Logs
+
 * Documentation
+
 * Screenshots
 
 ---
@@ -977,118 +1521,169 @@ This project intentionally demonstrates practical Data Engineering concepts.
 ### Ingestion
 
 * REST API ingestion
+
 * GTFS-Realtime
+
 * Continuous polling
 
 ### Streaming
 
 * Apache Kafka
+
 * Producers
+
 * Consumers
+
 * Topics
+
 * Partitions
+
 * Offsets
+
 * Consumer groups
+
 * Consumer lag
 
 ### Spark
 
 * PySpark
+
 * Structured Streaming
+
 * Kafka integration
+
 * Streaming DataFrames
+
 * Event-time processing
+
 * Watermarking
+
 * Stateful processing
 
 ### Data Architecture
 
 * Bronze
+
 * Silver
+
 * Gold
+
 * Historical processing
+
 * Streaming processing
+
 * Serving layer
 
 ### Data Quality
 
 * Null handling
+
 * Coordinate validation
+
 * Timestamp validation
+
 * Duplicate handling
+
 * GPS anomaly detection
+
 * Observation-gap filtering
+
 * Schema validation
+
 * Invalid-event quarantine
 
 ### Database Engineering
 
 * PostgreSQL
+
 * Schemas
+
 * Primary keys
+
 * Indexes
+
 * Append-only facts
+
 * Current-state tables
+
 * Upserts
+
 * Serving tables
 
 ### Mobility Analytics
 
 * Vehicle activity
+
 * Vehicle movement
+
 * Distance estimation
+
 * Speed estimation
+
 * Route performance
+
 * Time-series analysis
 
 ---
 
 # 🌍 Future Data Sources
 
-The platform is designed to eventually support:
+The platform is designed to support additional realtime and contextual mobility sources:
 
 ```text
-🚌 Public Transit
+🚌 Public Transit / GTFS-Realtime
 🌦 Weather
 🚗 Traffic
 ✈️ Aviation
 🚲 Bike Sharing
 🚨 Service Alerts
 📍 Geospatial Data
+🧭 City-specific transport APIs
 ```
 
-Each source should be implemented as an independent connector.
+Each source should be implemented as an independent connector and normalized into the common mobility event schema.
 
 ---
 
 # 🏙️ Multi-City Vision
 
-The long-term goal is to support multiple cities using a common platform.
+The platform is now being structured around a common city configuration instead of duplicating the pipeline for every city.
+
+Current configuration:
 
 ```text
-cities/
-├── delhi/
-├── mumbai/
-├── bangalore/
-├── london/
-└── new_york/
+config/cities.json
+
+Delhi      → real realtime connector
+Lucknow    → testing configuration
+Meerut     → testing configuration
+Noida      → testing configuration
+Kanpur     → testing configuration
 ```
+
+The test cities are intentionally marked as non-production/testing entries until a verified realtime connector is available.
 
 Target architecture:
 
 ```text
-                 Open City Mobility
-                         │
-          ┌──────────────┼──────────────┐
-          ▼              ▼              ▼
-        Delhi          Mumbai       Bangalore
-          │              │              │
-          └──────────────┼──────────────┘
-                         ▼
-                   Common Pipeline
+Open City Mobility
+
+                     │
+
+   ┌─────────────────┼─────────────────┐
+   ▼                 ▼                 ▼
+Delhi              UP Cities       Other Cities
+   │                 │                 │
+   └─────────────────┼─────────────────┘
+                     ▼
+              Common Connector
+                     │
+                     ▼
+              Common Pipeline
+
 ```
 
-A contributor should eventually be able to add a city without rewriting the complete pipeline.
+A contributor should eventually be able to add a city by providing configuration and a connector that conforms to the common event schema.
 
 ---
 
@@ -1099,27 +1694,41 @@ Open City Mobility is designed to be community-driven.
 ## Beginner Contributions
 
 * Documentation
+
 * Tests
+
 * Bug fixes
+
 * Configuration
+
 * Examples
 
 ## Intermediate Contributions
 
 * API connectors
+
 * Streaming transformations
+
 * Silver models
+
 * Data-quality rules
+
 * Dashboard components
 
 ## Advanced Contributions
 
 * Spark Structured Streaming
+
 * Kafka optimization
+
 * Pipeline observability
+
 * Anomaly detection
+
 * Machine learning
+
 * Cloud infrastructure
+
 * Kubernetes
 
 ---
@@ -1158,6 +1767,8 @@ Open City Mobility is designed to be community-driven.
 * [x] Streaming Silver
 * [x] Event-time processing
 * [x] Watermarking
+* [x] Streaming data-quality validation
+* [x] Invalid-event quarantine
 * [ ] Stateful processing validation
 
 ## Phase 4 — Data Platform
@@ -1175,6 +1786,8 @@ Open City Mobility is designed to be community-driven.
 * [x] Route dimension enrichment
 * [x] Stop dimension population
 * [x] FastAPI serving layer
+* [x] Live vehicle API
+* [x] Analytics API endpoints
 
 ## Phase 5 — Orchestration & Quality
 
@@ -1187,46 +1800,88 @@ Open City Mobility is designed to be community-driven.
 
 ## Phase 6 — Analytics
 
-* [ ] Live vehicle map
-* [ ] Real-time dashboard
-* [ ] Mobility anomaly detection
-* [ ] Real-time alerts
-* [ ] Historical comparisons
+* [x] Live vehicle map
+* [x] Real-time dashboard
+* [x] Mobility anomaly detection
+* [x] Real-time alerts
+* [x] Historical comparisons
 
 ## Phase 7 — Community Expansion
 
-* [ ] Multi-city framework
+* [x] Multi-city configuration framework
 * [ ] Contributor guide
 * [ ] Issue templates
 * [ ] Pull-request templates
-* [ ] Additional data connectors
+* [ ] Additional realtime data connectors
+
+Current multi-city testing includes Delhi plus UP test configurations for Lucknow, Meerut, Noida, and Kanpur.
 
 ## Phase 8 — Advanced Platform
 
 * [ ] Mobility prediction
 * [ ] Machine learning
+* [ ] Gemini-powered mobility intelligence
 * [ ] Cloud deployment
 * [ ] Terraform
 * [ ] Kubernetes
+
+Planned Advanced AI Direction
+
+Instead of relying only on a conventional forecasting model, the platform may use a hybrid approach:
+
+```text
+Historical + realtime mobility data
+↓
+Prediction / analytics
+↓
+Gemini AI
+↓
+┌──────────┼──────────┐
+↓          ↓          ↓
+Insights   Explanations  Recommendations
+↓          ↓          ↓
+API
+↓
+Dashboard
+```
+
+Gemini will be used for AI-assisted mobility intelligence, while deterministic analytics remain responsible for core numerical calculations and data quality.
 
 ---
 
 # 📊 Dashboard
 
-Planned dashboard capabilities:
+The dashboard is now implemented as the main application/analytics interface.
+
+Current capabilities:
 
 * Live vehicle map
+
 * Active vehicle count
+
 * Active route count
-* Route performance
-* Vehicle movement
-* Mobility trends
-* Anomaly alerts
-* Historical comparisons
+
+* Active trip count
+
+* Route activity
+
+* Mobility anomaly detection
+
+* Real-time mobility alerts
+
+* Automatic 30-second data refresh
+
+Planned additions:
+
+* Historical today-vs-yesterday comparisons
+
+* Route trend visualizations
+
+* AI-generated mobility summaries
+
+* Predictive mobility insights
 
 ### Dashboard Screenshot
-
-Once the dashboard is available:
 
 ```markdown
 ![Dashboard](docs/images/dashboard.png)
@@ -1245,10 +1900,15 @@ See [`LICENSE`](LICENSE) for license information.
 If you find the project useful:
 
 * ⭐ Star the repository
+
 * 🐛 Report issues
+
 * 💡 Suggest improvements
+
 * 🔧 Submit pull requests
+
 * 📖 Improve documentation
+
 * 🌍 Add new cities or data sources
 
 ---
@@ -1258,15 +1918,21 @@ If you find the project useful:
 Transform:
 
 ```text
+
 Raw public transportation feeds
+
 ```
 
 into:
 
 ```text
+
 A reusable open-source
+
 real-time city mobility
+
 intelligence platform.
+
 ```
 
 **Built by the community. For the community.**
