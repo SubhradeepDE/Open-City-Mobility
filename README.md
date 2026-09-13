@@ -16,6 +16,9 @@ Buses move through different locations, routes become busy, services change, veh
 
 The goal of this project is to build an open-source platform that continuously collects this data and transforms it into useful mobility intelligence.
 
+### Architecture
+
+![Architecture](architecture/architecture.png)
 
 ### Long-term vision
 
