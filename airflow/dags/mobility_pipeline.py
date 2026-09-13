@@ -1,4 +1,6 @@
 from datetime import datetime, timezone
+from src.quality.checks import check_not_empty
+from src.quality.runner import all_checks_passed, run_checks
 
 import psycopg2
 from airflow.sdk import dag, task
@@ -91,7 +93,7 @@ def mobility_pipeline():
 
     @task
     def validate_route_ids():
-        print("🔍 Checking route IDs...")
+        print("🔍 Checking route IDs using Data Quality framework...")
 
         conn = psycopg2.connect(**DB_CONFIG)
 
@@ -100,26 +102,42 @@ def mobility_pipeline():
 
             cursor.execute(
                 """
-                SELECT COUNT(*)
+                SELECT route_id
                 FROM mobility.route_activity_summary
-                WHERE route_id IS NULL
-                   OR TRIM(route_id) = ''
                 """
             )
 
-            invalid_count = cursor.fetchone()[0]
+            rows = cursor.fetchall()
 
-            print(f"Invalid route IDs: {invalid_count}")
+            checks = []
 
-            if invalid_count > 0:
-                raise RuntimeError(
-                    f"Data quality check failed: "
-                    f"{invalid_count} invalid route IDs found"
+            for (route_id,) in rows:
+                checks.append(
+                    {
+                        "name": "route_id_not_empty",
+                        "function": check_not_empty,
+                        "value": route_id,
+                        "field_name": "route_id",
+                    }
                 )
 
-            print("✅ Route ID data-quality check passed.")
+            results = run_checks(checks)
+
+            for result in results:
+                print(result)
+
+            if not all_checks_passed(results):
+                raise RuntimeError(
+                    "Data quality check failed: invalid route IDs found"
+                )
+
+            print(
+                f"✅ Route ID data-quality check passed for "
+                f"{len(rows)} records."
+            )
 
             cursor.close()
+
         finally:
             conn.close()
 
