@@ -4,9 +4,15 @@ from datetime import datetime, timezone
 
 from kafka import KafkaConsumer
 
+KAFKA_BOOTSTRAP_SERVERS = os.getenv(
+    "KAFKA_BOOTSTRAP_SERVERS",
+    "localhost:9092",
+)
 
-KAFKA_BOOTSTRAP_SERVERS = "localhost:9092"
-KAFKA_TOPIC = "vehicle_positions"
+KAFKA_TOPIC = os.getenv(
+    "KAFKA_TOPIC",
+    "vehicle_positions",
+)
 KAFKA_GROUP_ID = "bronze-storage-consumer"
 
 BRONZE_DIR = "data/bronze/stream"

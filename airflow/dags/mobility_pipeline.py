@@ -1,21 +1,21 @@
 import sys
 from datetime import datetime, timezone
-
-sys.path.insert(0, "/opt/airflow/project")
 from datetime import datetime, timezone
 from src.quality.checks import check_not_empty
 from src.quality.runner import all_checks_passed, run_checks
-
 import psycopg2
 from airflow.sdk import dag, task
+import os
 
+
+sys.path.insert(0, "/opt/airflow/project")
 
 DB_CONFIG = {
-    "host": "postgres",
-    "port": 5432,
-    "database": "mobility",
-    "user": "mobility_user",
-    "password": "mobility_password",
+    "host": os.getenv("DB_HOST", "postgres"),
+    "port": int(os.getenv("DB_PORT", "5432")),
+    "database": os.getenv("DB_NAME", "mobility"),
+    "user": os.getenv("DB_USER", "mobility_user"),
+    "password": os.getenv("DB_PASSWORD", "mobility_password"),
 }
 
 
