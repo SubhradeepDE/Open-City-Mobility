@@ -1172,10 +1172,9 @@ Open City Mobility is designed to be community-driven.
 * [x] PySpark → PostgreSQL integration
 * [x] Latest vehicle-state upsert
 * [x] Automated route-summary refresh
-* [ ] Static GTFS reference-data enrichment
-* [ ] Route dimension enrichment
-* [ ] Stop dimension population
-* [ ] FastAPI serving layer
+* [x] Route dimension enrichment
+* [x] Stop dimension population
+* [x] FastAPI serving layer
 
 ## Phase 5 — Orchestration & Quality
 
