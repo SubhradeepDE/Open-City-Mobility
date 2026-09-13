@@ -2,7 +2,7 @@ import psycopg2
 
 
 DB_CONFIG = {
-    "host": "localhost",
+    "host": "postgres",
     "port": 5432,
     "database": "mobility",
     "user": "mobility_user",

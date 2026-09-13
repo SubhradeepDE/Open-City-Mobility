@@ -1,0 +1,27 @@
+{"timestamp":"2026-09-13T17:42:32.268232Z","level":"info","event":"DAG bundles loaded: dags-folder","logger":"airflow.dag_processing.bundles.manager.DagBundlesManager","filename":"manager.py","lineno":179}
+{"timestamp":"2026-09-13T17:42:32.269177Z","level":"info","event":"Filling up the DagBag from /opt/airflow/dags/mobility_pipeline.py","logger":"airflow.models.dagbag.DagBag","filename":"dagbag.py","lineno":593}
+{"timestamp":"2026-09-13T17:42:32.386703Z","level":"info","event":"🚦 Starting route activity summary refresh...","logger":"task.stdout"}
+{"timestamp":"2026-09-13T17:42:32.587105Z","level":"info","event":"STDOUT:","logger":"task.stdout"}
+{"timestamp":"2026-09-13T17:42:32.587790Z","level":"info","event":"========================================","logger":"task.stdout"}
+{"timestamp":"2026-09-13T17:42:32.588020Z","level":"info","event":"Refreshing Route Activity Summary","logger":"task.stdout"}
+{"timestamp":"2026-09-13T17:42:32.588138Z","level":"info","event":"========================================","logger":"task.stdout"}
+{"timestamp":"2026-09-13T17:42:32.588280Z","level":"info","event":"","logger":"task.stdout"}
+{"timestamp":"2026-09-13T17:42:32.588567Z","level":"info","event":"STDERR:","logger":"task.stdout"}
+{"timestamp":"2026-09-13T17:42:32.588823Z","level":"info","event":"Traceback (most recent call last):","logger":"task.stdout"}
+{"timestamp":"2026-09-13T17:42:32.588941Z","level":"info","event":"  File \"/opt/airflow/project/src/transformation/route_activity_summary.py\", line 69, in <module>","logger":"task.stdout"}
+{"timestamp":"2026-09-13T17:42:32.589059Z","level":"info","event":"    main()","logger":"task.stdout"}
+{"timestamp":"2026-09-13T17:42:32.589154Z","level":"info","event":"  File \"/opt/airflow/project/src/transformation/route_activity_summary.py\", line 61, in main","logger":"task.stdout"}
+{"timestamp":"2026-09-13T17:42:32.589253Z","level":"info","event":"    refresh_route_activity_summary()","logger":"task.stdout"}
+{"timestamp":"2026-09-13T17:42:32.589384Z","level":"info","event":"  File \"/opt/airflow/project/src/transformation/route_activity_summary.py\", line 14, in refresh_route_activity_summary","logger":"task.stdout"}
+{"timestamp":"2026-09-13T17:42:32.589493Z","level":"info","event":"    connection = psycopg2.connect(**DB_CONFIG)","logger":"task.stdout"}
+{"timestamp":"2026-09-13T17:42:32.589600Z","level":"info","event":"                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^","logger":"task.stdout"}
+{"timestamp":"2026-09-13T17:42:32.589697Z","level":"info","event":"  File \"/home/airflow/.local/lib/python3.12/site-packages/psycopg2/__init__.py\", line 122, in connect","logger":"task.stdout"}
+{"timestamp":"2026-09-13T17:42:32.589803Z","level":"info","event":"    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)","logger":"task.stdout"}
+{"timestamp":"2026-09-13T17:42:32.589926Z","level":"info","event":"           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^","logger":"task.stdout"}
+{"timestamp":"2026-09-13T17:42:32.590015Z","level":"info","event":"psycopg2.OperationalError: connection to server at \"localhost\" (::1), port 5432 failed: Connection refused","logger":"task.stdout"}
+{"timestamp":"2026-09-13T17:42:32.590139Z","level":"info","event":"\tIs the server running on that host and accepting TCP/IP connections?","logger":"task.stdout"}
+{"timestamp":"2026-09-13T17:42:32.590301Z","level":"info","event":"connection to server at \"localhost\" (127.0.0.1), port 5432 failed: Connection refused","logger":"task.stdout"}
+{"timestamp":"2026-09-13T17:42:32.590435Z","level":"info","event":"\tIs the server running on that host and accepting TCP/IP connections?","logger":"task.stdout"}
+{"timestamp":"2026-09-13T17:42:32.590877Z","level":"info","event":"","logger":"task.stdout"}
+{"timestamp":"2026-09-13T17:42:32.591260Z","level":"info","event":"","logger":"task.stdout"}
+{"timestamp":"2026-09-13T17:42:32.587063Z","level":"error","event":"Task failed with exception","logger":"task","filename":"task_runner.py","lineno":994,"error_detail":[{"exc_type":"RuntimeError","exc_value":"Route summary refresh failed with exit code 1","exc_notes":[],"syntax_error":null,"is_cause":false,"frames":[{"filename":"/home/airflow/.local/lib/python3.12/site-packages/airflow/sdk/execution_time/task_runner.py","lineno":920,"name":"run"},{"filename":"/home/airflow/.local/lib/python3.12/site-packages/airflow/sdk/execution_time/task_runner.py","lineno":1307,"name":"_execute_task"},{"filename":"/home/airflow/.local/lib/python3.12/site-packages/airflow/sdk/bases/operator.py","lineno":416,"name":"wrapper"},{"filename":"/home/airflow/.local/lib/python3.12/site-packages/airflow/sdk/bases/decorator.py","lineno":252,"name":"execute"},{"filename":"/home/airflow/.local/lib/python3.12/site-packages/airflow/sdk/bases/operator.py","lineno":416,"name":"wrapper"},{"filename":"/home/airflow/.local/lib/python3.12/site-packages/airflow/providers/standard/operators/python.py","lineno":216,"name":"execute"},{"filename":"/home/airflow/.local/lib/python3.12/site-packages/airflow/providers/standard/operators/python.py","lineno":239,"name":"execute_callable"},{"filename":"/home/airflow/.local/lib/python3.12/site-packages/airflow/sdk/execution_time/callback_runner.py","lineno":82,"name":"run"},{"filename":"/opt/airflow/dags/mobility_pipeline.py","lineno":47,"name":"refresh_route_summary"}],"is_group":false,"exceptions":[]}]}

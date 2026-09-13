@@ -1,0 +1,3 @@
+{"timestamp":"2026-09-13T18:13:27.189317Z","level":"info","event":"DAG bundles loaded: dags-folder","logger":"airflow.dag_processing.bundles.manager.DagBundlesManager","filename":"manager.py","lineno":179}
+{"timestamp":"2026-09-13T18:13:27.210547Z","level":"info","event":"Filling up the DagBag from /opt/airflow/dags/mobility_pipeline.py","logger":"airflow.models.dagbag.DagBag","filename":"dagbag.py","lineno":593}
+{"timestamp":"2026-09-13T18:13:31.500229Z","level":"info","event":"🚦 Starting route activity summary refresh...","logger":"task.stdout"}
