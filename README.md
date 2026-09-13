@@ -18,7 +18,7 @@ The goal of this project is to build an open-source platform that continuously c
 
 ### Architecture
 
-![Architecture](architecture/architecture.png)
+![Architecture-1](architecture/architecture.png)
 
 ### Long-term vision
 
