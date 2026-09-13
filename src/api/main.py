@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Any
-
+import os
 import psycopg2
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -23,13 +23,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 DB_CONFIG = {
-    "host": "localhost",
-    "port": 5432,
-    "database": "mobility",
-    "user": "mobility_user",
-    "password": "mobility_password",
+    "host": os.getenv("DB_HOST", "postgres"),
+    "port": int(os.getenv("DB_PORT", "5432")),
+    "database": os.getenv("DB_NAME", "mobility"),
+    "user": os.getenv("DB_USER", "mobility_user"),
+    "password": os.getenv("DB_PASSWORD", "mobility_password"),
 }
 
 
@@ -242,3 +241,153 @@ def get_metrics_overview() -> dict[str, Any]:
     finally:
         if connection is not None:
             connection.close()
+
+
+@app.get("/vehicles/live")
+def get_live_vehicles():
+    conn = psycopg2.connect(**DB_CONFIG)
+
+    try:
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            SELECT
+                vehicle_id,
+                route_id,
+                trip_id,
+                latitude,
+                longitude,
+                vehicle_timestamp,
+                ingestion_timestamp
+            FROM mobility.latest_vehicle_positions
+            ORDER BY updated_at DESC
+            """
+        )
+
+        rows = cursor.fetchall()
+
+        vehicles = []
+
+        for row in rows:
+            vehicles.append(
+                {
+                    "vehicle_id": row[0],
+                    "route_id": row[1],
+                    "trip_id": row[2],
+                    "latitude": row[3],
+                    "longitude": row[4],
+                    "vehicle_timestamp": row[5].isoformat(),
+                    "ingestion_timestamp": row[6].isoformat(),
+                }
+            )
+
+        cursor.close()
+
+        return {
+            "count": len(vehicles),
+            "vehicles": vehicles,
+        }
+
+    finally:
+        conn.close()
+@app.get("/analytics/anomalies")
+def get_anomalies():
+    conn = psycopg2.connect(**DB_CONFIG)
+
+    try:
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            SELECT
+                route_id,
+                hour,
+                active_vehicles,
+                avg_active_vehicles,
+                deviation_percent,
+                anomaly_status
+            FROM mobility.route_activity_anomalies
+            WHERE anomaly_status <> 'NORMAL'
+            ORDER BY ABS(deviation_percent) DESC
+            LIMIT 20
+            """
+        )
+
+        rows = cursor.fetchall()
+
+        anomalies = [
+            {
+                "route_id": row[0],
+                "hour": row[1].isoformat() if row[1] else None,
+                "active_vehicles": row[2],
+                "avg_active_vehicles": float(row[3])
+                if row[3] is not None
+                else None,
+                "deviation_percent": float(row[4])
+                if row[4] is not None
+                else None,
+                "anomaly_status": row[5],
+            }
+            for row in rows
+        ]
+
+        cursor.close()
+
+        return {
+            "count": len(anomalies),
+            "anomalies": anomalies,
+        }
+
+    finally:
+        conn.close()
+
+@app.get("/analytics/alerts")
+def get_alerts():
+    conn = psycopg2.connect(**DB_CONFIG)
+
+    try:
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            SELECT
+                alert_id,
+                route_id,
+                alert_time,
+                alert_type,
+                deviation_percent,
+                message
+            FROM monitoring.mobility_alerts
+            ORDER BY alert_id DESC
+            LIMIT 20
+            """
+        )
+
+        rows = cursor.fetchall()
+
+        alerts = [
+            {
+                "alert_id": row[0],
+                "route_id": row[1],
+                "alert_time": row[2].isoformat()
+                if row[2]
+                else None,
+                "alert_type": row[3],
+                "deviation_percent": float(row[4])
+                if row[4] is not None
+                else None,
+                "message": row[5],
+            }
+            for row in rows
+        ]
+
+        cursor.close()
+
+        return {
+            "count": len(alerts),
+            "alerts": alerts,
+        }
+
+    finally:
+        conn.close()
