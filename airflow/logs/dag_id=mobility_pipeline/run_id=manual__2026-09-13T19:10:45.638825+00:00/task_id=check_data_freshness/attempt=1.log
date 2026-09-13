@@ -1,0 +1,7 @@
+{"timestamp":"2026-09-13T19:10:51.734721Z","level":"info","event":"DAG bundles loaded: dags-folder","logger":"airflow.dag_processing.bundles.manager.DagBundlesManager","filename":"manager.py","lineno":179}
+{"timestamp":"2026-09-13T19:10:51.736622Z","level":"info","event":"Filling up the DagBag from /opt/airflow/dags/mobility_pipeline.py","logger":"airflow.models.dagbag.DagBag","filename":"dagbag.py","lineno":593}
+{"timestamp":"2026-09-13T19:10:52.486147Z","level":"info","event":"⏱️ Checking vehicle data freshness...","logger":"task.stdout"}
+{"timestamp":"2026-09-13T19:10:52.515288Z","level":"info","event":"Latest ingestion timestamp: 2026-09-12 23:11:35.384456+00:00","logger":"task.stdout"}
+{"timestamp":"2026-09-13T19:10:52.518252Z","level":"info","event":"Data age: 1199.29 minutes","logger":"task.stdout"}
+{"timestamp":"2026-09-13T19:10:52.518996Z","level":"info","event":"⚠️ Data is stale by 1199.29 minutes. Realtime ingestion may currently be stopped.","logger":"task.stdout"}
+{"timestamp":"2026-09-13T19:10:52.517705Z","level":"info","event":"Done. Returned value was: None","logger":"airflow.task.operators.airflow.providers.standard.decorators.python._PythonDecoratedOperator","filename":"python.py","lineno":218}

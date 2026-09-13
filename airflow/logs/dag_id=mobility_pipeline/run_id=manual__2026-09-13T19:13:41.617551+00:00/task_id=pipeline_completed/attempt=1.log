@@ -1,0 +1,7 @@
+{"timestamp":"2026-09-13T19:13:49.970851Z","level":"info","event":"DAG bundles loaded: dags-folder","logger":"airflow.dag_processing.bundles.manager.DagBundlesManager","filename":"manager.py","lineno":179}
+{"timestamp":"2026-09-13T19:13:49.978377Z","level":"info","event":"Filling up the DagBag from /opt/airflow/dags/mobility_pipeline.py","logger":"airflow.models.dagbag.DagBag","filename":"dagbag.py","lineno":593}
+{"timestamp":"2026-09-13T19:13:50.148304Z","level":"info","event":"✅ Mobility pipeline completed at 2026-09-13T19:13:50.146942+00:00","logger":"task.stdout"}
+{"timestamp":"2026-09-13T19:13:50.150047Z","level":"info","event":"⏱️ Pipeline duration: 7.55 seconds","logger":"task.stdout"}
+{"timestamp":"2026-09-13T19:13:50.157599Z","level":"info","event":"📊 Records processed: 299","logger":"task.stdout"}
+{"timestamp":"2026-09-13T19:13:50.162267Z","level":"info","event":"✅ Pipeline monitoring record saved.","logger":"task.stdout"}
+{"timestamp":"2026-09-13T19:13:50.160889Z","level":"info","event":"Done. Returned value was: None","logger":"airflow.task.operators.airflow.providers.standard.decorators.python._PythonDecoratedOperator","filename":"python.py","lineno":218}

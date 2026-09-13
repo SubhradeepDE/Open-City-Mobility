@@ -1,3 +1,7 @@
+import sys
+from datetime import datetime, timezone
+
+sys.path.insert(0, "/opt/airflow/project")
 from datetime import datetime, timezone
 from src.quality.checks import check_not_empty
 from src.quality.runner import all_checks_passed, run_checks
@@ -29,11 +33,12 @@ def mobility_pipeline():
 
     @task
     def pipeline_started():
+        start_time = datetime.now(timezone.utc)
         print(
             f"🚦 Mobility pipeline started at "
             f"{datetime.now(timezone.utc).isoformat()}"
         )
-
+        return start_time.isoformat()
     @task
     def refresh_route_summary():
         import subprocess
@@ -193,18 +198,160 @@ def mobility_pipeline():
             conn.close()
 
     @task
-    def pipeline_completed():
+    def collect_data_observability():
+        print("📊 Collecting data observability metrics...")
+
+        conn = psycopg2.connect(**DB_CONFIG)
+
+        try:
+            cursor = conn.cursor()
+
+            cursor.execute(
+                "SELECT COUNT(*) FROM mobility.vehicle_positions"
+            )
+            row_count = cursor.fetchone()[0]
+
+            cursor.execute(
+                """
+                SELECT COUNT(*)
+                FROM mobility.vehicle_positions
+                WHERE vehicle_id IS NULL
+                OR ingestion_timestamp IS NULL
+                """
+            )
+            null_count = cursor.fetchone()[0]
+
+            cursor.execute(
+                """
+                SELECT COUNT(*)
+                FROM (
+                    SELECT vehicle_id, vehicle_timestamp
+                    FROM mobility.vehicle_positions
+                    GROUP BY vehicle_id, vehicle_timestamp
+                    HAVING COUNT(*) > 1
+                ) duplicates
+                """
+            )
+            duplicate_count = cursor.fetchone()[0]
+
+            cursor.execute(
+                """
+                INSERT INTO monitoring.data_quality_metrics (
+                    table_name,
+                    row_count,
+                    null_count,
+                    duplicate_count
+                )
+                VALUES (%s, %s, %s, %s)
+                """,
+                (
+                    "mobility.vehicle_positions",
+                    row_count,
+                    null_count,
+                    duplicate_count,
+                ),
+            )
+
+            conn.commit()
+
+            print(f"📦 Row count: {row_count}")
+            print(f"⚠️ Null count: {null_count}")
+            print(f"🔁 Duplicate count: {duplicate_count}")
+            print("✅ Observability metrics saved.")
+
+            cursor.close()
+
+        finally:
+            conn.close()
+
+    @task
+    def pipeline_completed(start_time):
+        end_time = datetime.now(timezone.utc)
+
+        start = datetime.fromisoformat(start_time)
+
+        duration_seconds = (
+            end_time - start
+        ).total_seconds()
+
         print(
-            f"✅ Mobility pipeline completed successfully at "
-            f"{datetime.now(timezone.utc).isoformat()}"
+            f"✅ Mobility pipeline completed at "
+            f"{end_time.isoformat()}"
         )
 
+        print(
+            f"⏱️ Pipeline duration: "
+            f"{duration_seconds:.2f} seconds"
+        )
+
+        conn = psycopg2.connect(**DB_CONFIG)
+
+        try:
+            cursor = conn.cursor()
+
+            cursor.execute(
+                """
+                SELECT COUNT(*)
+                FROM mobility.route_activity_summary
+                """
+            )
+
+            records_processed = cursor.fetchone()[0]
+
+            print(
+                f"📊 Records processed: "
+                f"{records_processed}"
+            )
+
+            cursor.execute(
+                """
+                INSERT INTO monitoring.pipeline_runs (
+                    pipeline_name,
+                    status,
+                    start_time,
+                    end_time,
+                    duration_seconds,
+                    records_processed,
+                    data_quality_status
+                )
+                VALUES (
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+                    %s
+                )
+                """,
+                (
+                    "mobility_pipeline",
+                    "SUCCESS",
+                    start,
+                    end_time,
+                    duration_seconds,
+                    records_processed,
+                    "PASSED",
+                ),
+            )
+
+            conn.commit()
+
+            print(
+                "✅ Pipeline monitoring record saved."
+            )
+
+            cursor.close()
+
+        finally:
+            conn.close()
     start_task = pipeline_started()
     refresh_task = refresh_route_summary()
     validate_task = validate_route_summary()
     quality_task = validate_route_ids()
     freshness_task = check_data_freshness()
-    completed_task = pipeline_completed()
+    completed_task = pipeline_completed(start_task)
+    observability_task = collect_data_observability()
 
     (
         start_task
@@ -212,6 +359,7 @@ def mobility_pipeline():
         >> validate_task
         >> quality_task
         >> freshness_task
+        >> observability_task
         >> completed_task
     )
 

@@ -1178,12 +1178,12 @@ Open City Mobility is designed to be community-driven.
 
 ## Phase 5 — Orchestration & Quality
 
-* [ ] Airflow
-* [ ] Automated data-quality framework
-* [ ] CI/CD
-* [ ] Pipeline monitoring
-* [ ] Data lineage
-* [ ] Data observability
+* [x] Airflow
+* [x] Automated data-quality framework
+* [x] CI/CD
+* [x] Pipeline monitoring
+* [x] Data lineage
+* [x] Data observability
 
 ## Phase 6 — Analytics
 
