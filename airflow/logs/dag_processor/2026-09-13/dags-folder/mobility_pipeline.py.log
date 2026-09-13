@@ -613,3 +613,5 @@
 {"timestamp":"2026-09-13T19:22:14.977820Z","level":"info","event":"Filling up the DagBag from /opt/airflow/dags/mobility_pipeline.py","logger":"airflow.models.dagbag.DagBag","filename":"dagbag.py","lineno":593}
 {"timestamp":"2026-09-13T19:22:45.638914Z","level":"info","event":"Filling up the DagBag from /opt/airflow/dags/mobility_pipeline.py","logger":"airflow.models.dagbag.DagBag","filename":"dagbag.py","lineno":593}
 {"timestamp":"2026-09-13T19:23:16.517520Z","level":"info","event":"Filling up the DagBag from /opt/airflow/dags/mobility_pipeline.py","logger":"airflow.models.dagbag.DagBag","filename":"dagbag.py","lineno":593}
+{"timestamp":"2026-09-13T19:23:47.139975Z","level":"info","event":"Filling up the DagBag from /opt/airflow/dags/mobility_pipeline.py","logger":"airflow.models.dagbag.DagBag","filename":"dagbag.py","lineno":593}
+{"timestamp":"2026-09-13T19:24:17.781377Z","level":"info","event":"Filling up the DagBag from /opt/airflow/dags/mobility_pipeline.py","logger":"airflow.models.dagbag.DagBag","filename":"dagbag.py","lineno":593}
