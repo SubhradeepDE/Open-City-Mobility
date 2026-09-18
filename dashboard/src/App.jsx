@@ -9,7 +9,7 @@ import {
 
 import "leaflet/dist/leaflet.css";
 
-const API_BASE_URL = "https://open-city-mobility-api.onrender.com";
+const API_BASE_URL = "https://open-city-mobility.onrender.com/";
 
 function App() {
   const [metrics, setMetrics] = useState(null);
